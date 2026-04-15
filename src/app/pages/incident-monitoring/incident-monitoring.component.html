@@ -2,189 +2,238 @@
 
   <!-- Top Nav -->
   <header class="topnav">
-    <div class="topnav-left">
-      <div class="brand">
-        <div class="brand-icon">
-          <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect width="36" height="36" rx="8" fill="#F0820F"/>
-            <path d="M8 14C8 12.343 9.343 11 11 11h14c1.657 0 3 1.343 3 3v8c0 1.657-1.343 3-3 3H11c-1.657 0-3-1.343-3-3v-8Z" stroke="white" stroke-width="1.5"/>
-            <circle cx="18" cy="18" r="3.5" stroke="white" stroke-width="1.5"/>
-            <path d="M25 14l3-2v12l-3-2" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
+    <span class="topnav-title">CCTV Incident Monitoring</span>
+    <div class="profile-wrap" (click)="toggleDropdown('profile', $event)">
+      <span class="topnav-pic">PIC: <strong>Ari Dzar Ramadhani</strong></span>
+      <svg class="chip-arrow" [class.chip-arrow--open]="openDropdown === 'profile'" viewBox="0 0 10 6" fill="none">
+        <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      @if (openDropdown === 'profile') {
+        <div class="dropdown-menu dropdown-menu--right" (click)="$event.stopPropagation()">
+          <div class="dropdown-label">Simulate Incident</div>
+          @for (type of incidentTypes; track type.icon) {
+            <div class="dropdown-item dropdown-item--simulate"
+                 [class.dropdown-item--active-alert]="isTypeActive(type.icon)"
+                 (click)="toggleAlert(type, $event)">
+              <span class="simulate-dot" [class.simulate-dot--active]="isTypeActive(type.icon)"></span>
+              <span class="simulate-label">{{ type.name }}</span>
+              @if (isTypeActive(type.icon)) {
+                <span class="simulate-stop-badge">Stop</span>
+              }
+            </div>
+          }
+          @if (activeAlerts.length > 0) {
+            <div class="dropdown-divider"></div>
+            <div class="dropdown-item dropdown-item--danger" (click)="clearAllAlerts($event)">Stop All</div>
+          }
         </div>
-        <div class="brand-text">
-          <span class="brand-name">Bank Mandiri</span>
-          <span class="brand-sub">CCTV Monitoring System</span>
-        </div>
-      </div>
-      <div class="nav-divider"></div>
-      <h1 class="page-title">Incident Alert</h1>
-    </div>
-    <div class="topnav-right">
-      <div class="nav-status-row">
-        <span class="status-pill status-pill--online">
-          <span class="dot dot--online"></span>
-          {{ onlineCount }} Online
-        </span>
-        <span class="status-pill status-pill--offline">
-          <span class="dot dot--offline"></span>
-          {{ offlineCount }} Offline
-        </span>
-      </div>
-      <div class="nav-date">
-        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-          <rect x="2" y="3" width="12" height="11" rx="2" stroke-linecap="round"/>
-          <path d="M5 1v4M11 1v4M2 7h12" stroke-linecap="round"/>
-        </svg>
-        {{ currentDate | date:"dd MMMM yyyy, HH:mm" }} WIB
-      </div>
-      <div class="nav-user">
-        <div class="user-avatar">HK</div>
-        <div class="user-info">
-          <span class="user-name">Hendra K.</span>
-          <span class="user-role">HQ Supervisor</span>
-        </div>
-      </div>
+      }
     </div>
   </header>
 
   <!-- Main Content -->
   <main class="main-content">
-    <div class="content-card">
 
-      <!-- Filter Row -->
-      <div class="filter-row">
-        <span class="filter-label">Kamera</span>
-        <div class="filter-chips">
-          <select class="filter-chip" [(ngModel)]="filterBranch">
-            <option value="all">Semua Cabang</option>
-            <option value="KCU Sudirman">KCU Sudirman</option>
-            <option value="KCP Kuningan">KCP Kuningan</option>
-            <option value="KCU Gatot Subroto">KCU Gatot Subroto</option>
-            <option value="KCP Senen">KCP Senen</option>
-            <option value="KCU Mangga Dua">KCU Mangga Dua</option>
-            <option value="KCP Blok M">KCP Blok M</option>
-            <option value="KCU Gajah Mada">KCU Gajah Mada</option>
-          </select>
-          <select class="filter-chip" [(ngModel)]="filterStatus">
-            <option value="all">Semua Status</option>
-            <option value="online">Online</option>
-            <option value="offline">Offline</option>
-          </select>
-          <select class="filter-chip" [(ngModel)]="filterType">
-            <option value="all">Semua Tipe</option>
-            <option value="PTZ">PTZ</option>
-            <option value="Fixed">Fixed</option>
-            <option value="Dome">Dome</option>
-          </select>
-        </div>
-      </div>
+    <!-- Filter Row -->
+    <div class="filter-row">
+      <span class="filter-label">Filter</span>
+      <div class="filter-chips">
 
-      <!-- Camera Grid -->
-      <div class="camera-grid">
-        @for (cam of filteredCameras; track cam.id) {
-          <div class="camera-card">
-            <div class="camera-card-header">
-              <div class="camera-meta">
-                <span class="cam-name">{{ cam.name }}</span>
-                <span class="cam-location">{{ cam.location }}</span>
-              </div>
-              <span class="status-dot" [class.status-dot--online]="cam.status === 'online'" [class.status-dot--offline]="cam.status === 'offline'"></span>
-            </div>
-            <div class="camera-card-body">
-              <div class="camera-feed">
-                <svg class="feed-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M6 16C6 13.791 7.791 12 10 12h22c2.209 0 4 1.791 4 4v16c0 2.209-1.791 4-4 4H10c-2.209 0-4-1.791-4-4V16Z" stroke="#394C71" stroke-width="2"/>
-                  <circle cx="21" cy="24" r="5" stroke="#394C71" stroke-width="2"/>
-                  <path d="M36 18l6-4v20l-6-4" stroke="#394C71" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  <circle cx="21" cy="24" r="2" fill="#394C71"/>
-                </svg>
-                <span class="feed-no-signal">{{ cam.status === 'offline' ? 'No Signal' : 'Live' }}</span>
-              </div>
-              <div class="camera-card-footer">
-                <span class="cam-branch">{{ cam.branch }}</span>
-                <span class="cam-timestamp">{{ cam.lastUpdate | date:"HH:mm:ss" }}</span>
-              </div>
-            </div>
-          </div>
-        }
-        @if (filteredCameras.length === 0) {
-          <div class="grid-empty">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path d="M15 10l4.553-2.069A1 1 0 0121 8.931V15.07a1 1 0 01-1.447.894L15 14M3 8a2 2 0 012-2h10a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V8Z" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M3 3l18 18" stroke-linecap="round"/>
+        <!-- Region -->
+        <div class="filter-chip-wrap">
+          <div class="filter-chip" [class.filter-chip--active]="filterRegion" (click)="toggleDropdown('region', $event)">
+            <span>{{ filterRegion || 'Region' }}</span>
+            <svg class="chip-arrow" [class.chip-arrow--open]="openDropdown === 'region'" viewBox="0 0 10 6" fill="none">
+              <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            <span>Tidak ada kamera yang sesuai filter</span>
           </div>
-        }
-      </div>
+          @if (openDropdown === 'region') {
+            <div class="dropdown-menu" (click)="$event.stopPropagation()">
+              @if (filterRegion) {
+                <div class="dropdown-item dropdown-item--clear" (click)="selectRegion('', $event)">All Regions</div>
+              }
+              @for (r of regions; track r) {
+                <div class="dropdown-item" [class.dropdown-item--selected]="filterRegion === r" (click)="selectRegion(r, $event)">{{ r }}</div>
+              }
+            </div>
+          }
+        </div>
 
-      <!-- Detailed Monitoring Section -->
-      <div class="monitoring-section">
-        <div class="section-header">
-          <h2 class="section-title">Detailed Monitoring Section</h2>
-          <button class="btn-export">
-            <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
-              <path d="M8 2v8M5 7l3 3 3-3" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M3 11v2a1 1 0 001 1h8a1 1 0 001-1v-2" stroke-linecap="round"/>
+        <!-- Area -->
+        <div class="filter-chip-wrap">
+          <div class="filter-chip" [class.filter-chip--active]="filterArea" (click)="toggleDropdown('area', $event)">
+            <span>{{ filterArea || 'Area' }}</span>
+            <svg class="chip-arrow" [class.chip-arrow--open]="openDropdown === 'area'" viewBox="0 0 10 6" fill="none">
+              <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            Export CSV
-          </button>
+          </div>
+          @if (openDropdown === 'area') {
+            <div class="dropdown-menu" (click)="$event.stopPropagation()">
+              @if (filterArea) {
+                <div class="dropdown-item dropdown-item--clear" (click)="selectArea('', $event)">All Areas</div>
+              }
+              @for (a of areas; track a) {
+                <div class="dropdown-item" [class.dropdown-item--selected]="filterArea === a" (click)="selectArea(a, $event)">{{ a }}</div>
+              }
+            </div>
+          }
         </div>
 
-        <div class="table-wrap">
-          <table class="monitor-table">
-            <thead>
-              <tr>
-                <th>No.</th>
-                <th>Lokasi Kamera</th>
-                <th>Nama Cabang</th>
-                <th>Kamera ID / Tipe</th>
-                <th>Status</th>
-                <th>Waktu Update</th>
-                <th>Aksi</th>
-              </tr>
-            </thead>
-            <tbody>
-              @for (cam of filteredCameras; track cam.id) {
-                <tr>
-                  <td class="td-no">{{ cam.no }}</td>
-                  <td>{{ cam.location }}</td>
-                  <td>{{ cam.branch }}</td>
-                  <td>
-                    <div class="td-cam-id">
-                      <span class="cam-id-text">{{ cam.id }}</span>
-                      <span class="cam-type-badge">{{ cam.type }}</span>
-                    </div>
-                  </td>
-                  <td>
-                    <span class="status-badge" [class.status-badge--online]="cam.status === 'online'" [class.status-badge--offline]="cam.status === 'offline'">
-                      <span class="dot-sm" [class.dot-sm--online]="cam.status === 'online'" [class.dot-sm--offline]="cam.status === 'offline'"></span>
-                      {{ cam.status === 'online' ? 'Online' : 'Offline' }}
-                    </span>
-                  </td>
-                  <td class="td-time">{{ cam.lastUpdate | date:"dd/MM/yyyy HH:mm" }}</td>
-                  <td>
-                    <button class="btn-view-detail">View Details</button>
-                  </td>
-                </tr>
+        <!-- Cabang -->
+        <div class="filter-chip-wrap">
+          <div class="filter-chip" [class.filter-chip--active]="filterCabang" (click)="toggleDropdown('cabang', $event)">
+            <span>{{ filterCabang || 'Cabang' }}</span>
+            <svg class="chip-arrow" [class.chip-arrow--open]="openDropdown === 'cabang'" viewBox="0 0 10 6" fill="none">
+              <path d="M1 1l4 4 4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          @if (openDropdown === 'cabang') {
+            <div class="dropdown-menu" (click)="$event.stopPropagation()">
+              @if (filterCabang) {
+                <div class="dropdown-item dropdown-item--clear" (click)="selectCabang('', $event)">All Branches</div>
               }
-              @if (filteredCameras.length === 0) {
-                <tr>
-                  <td colspan="7" class="td-empty">Tidak ada data yang sesuai filter</td>
-                </tr>
+              @for (b of branches; track b) {
+                <div class="dropdown-item" [class.dropdown-item--selected]="filterCabang === b" (click)="selectCabang(b, $event)">{{ b }}</div>
               }
-            </tbody>
-          </table>
+            </div>
+          }
         </div>
 
-        <div class="table-footer-bar">
-          <span>Menampilkan <strong>{{ filteredCameras.length }}</strong> dari <strong>{{ cameras.length }}</strong> kamera</span>
-          <span>Terakhir diperbarui: {{ currentDate | date:"dd/MM/yyyy HH:mm:ss" }}</span>
+        <!-- Month -->
+        <div class="filter-chip-wrap">
+          <div class="filter-chip filter-chip--date" (click)="toggleDropdown('month', $event)">
+            <svg class="chip-cal-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="2" y="3" width="12" height="11" rx="2" stroke-linecap="round"/>
+              <path d="M5 1v4M11 1v4M2 7h12" stroke-linecap="round"/>
+            </svg>
+            <span>{{ filterMonth }}</span>
+          </div>
+          @if (openDropdown === 'month') {
+            <div class="dropdown-menu" (click)="$event.stopPropagation()">
+              @for (m of months; track m) {
+                <div class="dropdown-item" [class.dropdown-item--selected]="filterMonth === m" (click)="selectMonth(m, $event)">{{ m }}</div>
+              }
+            </div>
+          }
         </div>
+
       </div>
-
     </div>
-  </main>
 
+    <!-- Incident Overview Card -->
+    <div class="card">
+      <h2 class="card-title">Incident Overview</h2>
+      <div class="incident-overview-row">
+        @for (type of incidentTypes; track type.icon; let last = $last) {
+          <div class="incident-type-item" [class.incident-type-item--alert]="isTypeActive(type.icon)">
+            <span class="incident-type-icon">
+              @if (type.icon === 'fire') {
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2C12 2 8 7 8 11c0 1.1.4 2.1 1 2.9C8.4 12.7 7 11.4 7 11c0 0-1 3 1 5a6 6 0 0010 0c1.5-2 1-5 1-5s-1 2-3 2c2-3 0-7-4-11z" fill="#FF6B35" stroke="#FF6B35" stroke-width="0.5" stroke-linejoin="round"/>
+                </svg>
+              }
+              @if (type.icon === 'unauthorized') {
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="12" cy="8" r="3" stroke="#FF8C42" stroke-width="1.5"/>
+                  <path d="M6 20c0-3.314 2.686-6 6-6s6 2.686 6 6" stroke="#FF8C42" stroke-width="1.5" stroke-linecap="round"/>
+                  <path d="M20 9l-5 5M15 9l5 5" stroke="#FF8C42" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+              }
+              @if (type.icon === 'atm') {
+                <span class="atm-badge">ATM</span>
+              }
+              @if (type.icon === 'afterhours') {
+                <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="11" cy="11" r="7" stroke="#9B8BFF" stroke-width="1.5"/>
+                  <path d="M20 20l-3-3" stroke="#9B8BFF" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+              }
+            </span>
+            <span class="incident-type-name">{{ type.name }}</span>
+            @if (isTypeActive(type.icon)) {
+              <span class="incident-alert-count">1</span>
+            }
+            <span class="incident-active-dot" [class.incident-active-dot--alert]="isTypeActive(type.icon)"></span>
+          </div>
+          @if (!last) {
+            <div class="incident-divider"></div>
+          }
+        }
+      </div>
+    </div>
+
+    <!-- Recent Incident Card (alert state) -->
+    @if (activeAlerts.length > 0) {
+      <div class="card">
+        <h2 class="card-title">Recent Incident</h2>
+        <div class="recent-incidents-row">
+          @for (alert of activeAlerts; track alert.type.icon) {
+            <div class="recent-incident-col">
+              <div class="recent-incident-chip">
+                <span class="recent-incident-title">{{ alert.type.name }}</span>
+                <span class="recent-incident-branch">{{ alert.type.simulateBranch }} | {{ alert.type.simulateArea }}</span>
+                <span class="recent-incident-elapsed">Detected {{ elapsedDisplay(alert.elapsedSeconds) }}</span>
+              </div>
+              @if (!alert.footageReady || !alert.type.videoSrc) {
+                <div class="footage-placeholder">
+                  <div class="footage-spinner"></div>
+                  <span>Waiting for Footage</span>
+                </div>
+              }
+              @if (alert.footageReady && alert.type.videoSrc) {
+                <video class="footage-video" [src]="alert.type.videoSrc" autoplay muted loop playsinline></video>
+              }
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- History Card -->
+    <div class="card">
+      <div class="history-header">
+        <h2 class="card-title">History</h2>
+        <button class="btn-export" title="Export">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M10 3v10M6 9l4 4 4-4" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M4 14v2a1 1 0 001 1h10a1 1 0 001-1v-2" stroke-linecap="round"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="table-wrap">
+        <table class="history-table">
+          <thead>
+            <tr>
+              <th>Branch Name</th>
+              <th>Time Detected</th>
+              <th>Time Cleared</th>
+              <th>Duration</th>
+              <th>Area</th>
+              <th>Indication</th>
+              <th>Activity</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (incident of incidents; track incident.id) {
+              <tr>
+                <td class="td-branch">{{ incident.branch }}</td>
+                <td class="td-time">{{ incident.timeDetected }}</td>
+                <td class="td-time">{{ incident.timeCleared }}</td>
+                <td class="td-duration">{{ incident.duration }}</td>
+                <td class="td-area">{{ incident.area }}</td>
+                <td class="td-indication">{{ incident.indication }}</td>
+                <td class="td-activity">{{ incident.activity }}</td>
+                <td class="td-action">
+                  <button class="btn-view-details">View Details</button>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
 </div>

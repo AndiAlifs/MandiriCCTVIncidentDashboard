@@ -168,7 +168,7 @@
         <h2 class="card-title">Recent Incident</h2>
         <div class="recent-incidents-row">
           @for (alert of activeAlerts; track alert.type.icon) {
-            <div class="recent-incident-col">
+            <div class="recent-incident-col" (click)="navigateToAlertDetail(alert, $event)" style="cursor:pointer">
               <div class="recent-incident-chip">
                 <span class="recent-incident-title">{{ alert.type.name }}</span>
                 <span class="recent-incident-branch">{{ alert.type.simulateBranch }} | {{ alert.type.simulateArea }}</span>
@@ -226,7 +226,7 @@
                 <td class="td-indication">{{ incident.indication }}</td>
                 <td class="td-activity">{{ incident.activity }}</td>
                 <td class="td-action">
-                  <button class="btn-view-details">View Details</button>
+                  <button class="btn-view-details" (click)="navigateToIncident(incident.id)">View Details</button>
                 </td>
               </tr>
             }

@@ -1,0 +1,502 @@
+// ─── Design Tokens ────────────────────────────────────────────────────────────
+$bg-page:       #0f1117;
+$bg-card:       #1c1e26;
+$bg-sidebar:    #16181f;
+$text-primary:  #FFFFFF;
+$text-muted:    #9AA0B0;
+$text-dim:      #6B7280;
+$border-subtle: rgba(255, 255, 255, 0.1);
+
+// ─── Host / Page ──────────────────────────────────────────────────────────────
+:host {
+  display: block;
+  height: 100vh;
+}
+
+.page {
+  width: 100%;
+  height: 100%;
+  background-color: $bg-page;
+  background-image: radial-gradient(circle, rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+  background-size: 22px 22px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+// ─── Top Nav ──────────────────────────────────────────────────────────────────
+.topnav {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  height: 56px;
+  background: $bg-page;
+  border-bottom: 1px solid $border-subtle;
+}
+
+.topnav-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.back-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 7px;
+  color: $text-muted;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s, color 0.15s;
+
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: $text-primary;
+  }
+}
+
+.topnav-breadcrumb {
+  font-size: 15px;
+  font-weight: 600;
+  color: $text-primary;
+}
+
+.topnav-pic {
+  font-size: 13px;
+  color: $text-muted;
+
+  strong {
+    color: $text-primary;
+    font-weight: 600;
+  }
+}
+
+// ─── Main Content ─────────────────────────────────────────────────────────────
+.detail-main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 28px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  &::-webkit-scrollbar { width: 6px; }
+  &::-webkit-scrollbar-track { background: transparent; }
+  &::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+  }
+}
+
+// ─── Detail Top (sidebar + video) ─────────────────────────────────────────────
+.detail-top {
+  display: flex;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: $bg-card;
+  min-height: 460px;
+}
+
+// ─── Left Sidebar ─────────────────────────────────────────────────────────────
+.detail-sidebar {
+  width: 248px;
+  flex-shrink: 0;
+  background: $bg-sidebar;
+  border-right: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  flex-direction: column;
+}
+
+.incident-type-badge {
+  padding: 14px 20px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #fff;
+  flex-shrink: 0;
+
+  &.badge--fire         { background: #C0392B; }
+  &.badge--unauthorized { background: #D4681A; }
+  &.badge--atm          { background: #1A56C4; }
+  &.badge--afterhours   { background: #5B4FBF; }
+}
+
+.sidebar-body {
+  padding: 20px 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.detail-section-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: $text-primary;
+}
+
+.detail-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.detail-row {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.field-label {
+  font-size: 11.5px;
+  color: $text-dim;
+  font-weight: 500;
+}
+
+.field-value {
+  font-size: 13px;
+  color: $text-primary;
+  font-weight: 500;
+  line-height: 1.4;
+}
+
+// ─── Video Panel ──────────────────────────────────────────────────────────────
+.video-panel {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #0a0b0f;
+  min-width: 0;
+}
+
+.video-wrapper {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  cursor: pointer;
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+}
+
+.main-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+// ─── Detection Overlays ───────────────────────────────────────────────────────
+.detection-banner {
+  position: absolute;
+  top: 14%;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(200, 160, 20, 0.92);
+  color: #fff;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  padding: 9px 22px;
+  border-radius: 6px;
+  pointer-events: none;
+  white-space: nowrap;
+  backdrop-filter: blur(2px);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+
+.detection-icon {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+}
+
+.bounding-box {
+  position: absolute;
+  top: 28%;
+  right: 8%;
+  width: 37%;
+  height: 58%;
+  border: 2px solid #FF2D78;
+  border-radius: 2px;
+  pointer-events: none;
+  box-shadow: 0 0 10px rgba(255, 45, 120, 0.4);
+}
+
+.video-timestamp {
+  position: absolute;
+  bottom: 50px;
+  right: 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #fff;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.9), 0 0 8px rgba(0,0,0,0.7);
+  pointer-events: none;
+  letter-spacing: 0.02em;
+}
+
+.play-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.2);
+  transition: background 0.15s;
+
+  &:hover { background: rgba(0, 0, 0, 0.35); }
+
+  svg {
+    width: 52px;
+    height: 52px;
+    color: rgba(255, 255, 255, 0.85);
+    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.7));
+  }
+}
+
+.footage-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  color: $text-dim;
+  font-size: 13px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.footage-spinner {
+  width: 34px;
+  height: 34px;
+  border: 3px solid rgba(255, 255, 255, 0.08);
+  border-top-color: rgba(255, 255, 255, 0.4);
+  border-radius: 50%;
+  animation: spin 0.9s linear infinite;
+}
+
+// ─── Video Controls ───────────────────────────────────────────────────────────
+.video-controls {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  background: #12131a;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.ctrl-btn {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: rgba(255, 255, 255, 0.75);
+  cursor: pointer;
+  border-radius: 4px;
+  transition: color 0.15s, background 0.15s;
+
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  &:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.08);
+  }
+}
+
+.ctrl-time {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  white-space: nowrap;
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.ctrl-progress {
+  flex: 1;
+  padding: 0 4px;
+}
+
+.progress-track {
+  height: 3px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.progress-fill {
+  height: 100%;
+  background: rgba(255, 255, 255, 0.75);
+  border-radius: 2px;
+  transition: width 0.1s linear;
+}
+
+// ─── Other CCTV Section ───────────────────────────────────────────────────────
+.other-cctv {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.other-cctv-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: $text-primary;
+  margin: 0;
+}
+
+.other-cctv-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+// ─── Other Camera Card ────────────────────────────────────────────────────────
+.other-cam-card {
+  background: $bg-card;
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  transition: border-color 0.15s;
+
+  &:hover {
+    border-color: rgba(255, 255, 255, 0.18);
+    cursor: pointer;
+  }
+}
+
+.cam-card-info {
+  padding: 10px 12px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.cam-alert-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  padding: 2px 7px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-self: flex-start;
+
+  &.cam-label--fire         { background: #C0392B; }
+  &.cam-label--unauthorized { background: #D4681A; }
+  &.cam-label--atm          { background: #1A56C4; }
+  &.cam-label--afterhours   { background: #5B4FBF; }
+}
+
+.cam-branch-text {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.55);
+  margin-top: 4px;
+}
+
+.cam-elapsed {
+  font-size: 11px;
+  color: $text-dim;
+}
+
+.cam-thumb-wrap {
+  position: relative;
+  overflow: hidden;
+  background: #000;
+  aspect-ratio: 16 / 10;
+}
+
+.cam-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: sepia(0.35) saturate(1.1) brightness(0.85);
+}
+
+.cam-overlay-top {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 5px 8px 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  pointer-events: none;
+}
+
+.cam-type-tag {
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+}
+
+.cam-detected-tag {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #fff;
+  background: rgba(180, 30, 30, 0.8);
+  display: inline-block;
+  padding: 1px 5px;
+  border-radius: 3px;
+  align-self: flex-start;
+}
+
+.cam-det-box {
+  position: absolute;
+  top: 30%;
+  left: 18%;
+  width: 38%;
+  height: 42%;
+  border: 1.5px solid #FF2D78;
+  border-radius: 1px;
+  pointer-events: none;
+}
+
+.cam-timestamp {
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  font-size: 8px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 1px 3px rgba(0,0,0,0.9);
+  pointer-events: none;
+  letter-spacing: 0.02em;
+}
+
+// ─── Animations ───────────────────────────────────────────────────────────────
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

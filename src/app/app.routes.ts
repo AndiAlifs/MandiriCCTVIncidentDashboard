@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
-import { IncidentAlertComponent } from './pages/incident-alert/incident-alert.component';
+import { IncidentMonitoringComponent } from './pages/incident-monitoring/incident-monitoring.component';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'incident-alert', pathMatch: 'full' },
-  { path: 'incident-alert', component: IncidentAlertComponent },
+  { path: '', redirectTo: 'incident-monitoring', pathMatch: 'full' },
+  { path: 'incident-monitoring', component: IncidentMonitoringComponent },
 ];

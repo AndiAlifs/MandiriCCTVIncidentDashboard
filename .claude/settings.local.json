@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm --version)",
+      "Bash(npx @angular/cli@latest version)",
+      "Bash(ng version:*)",
+      "Bash(ng new:*)",
+      "Bash(ng build:*)",
+      "mcp__1cd37f30-5b5f-4623-8500-6aaf01611669__get_design_context",
+      "Bash(python3 -c \" import sys, json data = json.load\\(sys.stdin\\) for item in data: if item.get\\('type'\\) == 'image_url' or 'screenshot' in str\\(item.get\\('type',''\\)\\).lower\\(\\): print\\('IMAGE ITEM:', str\\(item\\)[:500]\\) elif item.get\\('type'\\) == 'text': print\\('TEXT \\(first 2000 chars\\):', item.get\\('text',''\\)[:2000]\\) print\\('---'\\) \")",
+      "Bash(python3 -c ':*)",
+      "Bash(node -e ':*)",
+      "Bash(ng generate:*)",
+      "WebFetch(domain:www.figma.com)",
+      "mcp__Claude_in_Chrome__tabs_context_mcp",
+      "mcp__mcp-registry__search_mcp_registry",
+      "mcp__1cd37f30-5b5f-4623-8500-6aaf01611669__use_figma",
+      "mcp__1cd37f30-5b5f-4623-8500-6aaf01611669__get_metadata"
+    ]
+  }
+}

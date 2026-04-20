@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "incidents")
@@ -51,4 +53,8 @@ public class Incident {
 
     @Column(name = "simulated_at")
     private Instant simulatedAt;
+
+    @OneToMany(mappedBy = "incident", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<IncidentCamera> otherCameras = new ArrayList<>();
 }

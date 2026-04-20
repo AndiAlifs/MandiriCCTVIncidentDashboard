@@ -4,7 +4,9 @@ import com.mandiri.cctv.dto.IncidentDto;
 import com.mandiri.cctv.dto.OtherCameraDto;
 import com.mandiri.cctv.entity.Device;
 import com.mandiri.cctv.entity.Incident;
+import com.mandiri.cctv.entity.IncidentCamera;
 import com.mandiri.cctv.repository.DeviceRepository;
+import com.mandiri.cctv.repository.IncidentCameraRepository;
 import com.mandiri.cctv.repository.IncidentRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +35,7 @@ public class IncidentService {
             .withZone(ZoneId.of("Asia/Jakarta"));
 
     private final IncidentRepository incidentRepository;
+    private final IncidentCameraRepository incidentCameraRepository;
     private final DeviceRepository deviceRepository;
 
     @Transactional(readOnly = true)
@@ -61,19 +64,30 @@ public class IncidentService {
     public List<OtherCameraDto> getOtherCameras(Long incidentId) {
         Incident incident = incidentRepository.findById(incidentId)
             .orElseThrow(() -> new EntityNotFoundException("Incident not found: " + incidentId));
-        Device incidentDevice = incident.getDevice();
-        Long branchId = incidentDevice.getBranch().getId();
+
         Instant detectedAt = incident.getDetectedAt();
         Instant now = Instant.now();
+        String timestamp = DISPLAY_FMT.format(detectedAt) + " WIB";
+        String elapsed = formatElapsed(Duration.between(detectedAt, now));
 
+        List<IncidentCamera> stored = incidentCameraRepository.findByIncidentId(incidentId);
+        if (!stored.isEmpty()) {
+            return stored.stream()
+                .map(ic -> {
+                    Device d = ic.getDevice();
+                    return new OtherCameraDto(d.getId(), d.getLocation(), d.getIpAddress(), timestamp, elapsed, ic.getUrl());
+                })
+                .toList();
+        }
+
+        // fall back: other cameras in the same branch
+        Device incidentDevice = incident.getDevice();
+        Long branchId = incidentDevice.getBranch().getId();
         return deviceRepository.findOtherCamerasInBranch(branchId, incidentDevice.getId())
             .stream()
             .map(d -> {
                 String videoSrc = VIDEO_POOL.get((int) (d.getId() % VIDEO_POOL.size()));
-                String timestamp = DISPLAY_FMT.format(detectedAt) + " WIB";
-                Duration elapsed = Duration.between(detectedAt, now);
-                String elapsedStr = formatElapsed(elapsed);
-                return new OtherCameraDto(d.getId(), d.getLocation(), d.getIpAddress(), timestamp, elapsedStr, videoSrc);
+                return new OtherCameraDto(d.getId(), d.getLocation(), d.getIpAddress(), timestamp, elapsed, videoSrc);
             })
             .toList();
     }

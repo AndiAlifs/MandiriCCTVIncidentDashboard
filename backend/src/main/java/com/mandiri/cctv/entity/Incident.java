@@ -48,4 +48,7 @@ public class Incident {
 
     @Column(name = "cleared_at")
     private Instant clearedAt;
+
+    @Column(name = "simulated_at")
+    private Instant simulatedAt;
 }

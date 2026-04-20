@@ -59,7 +59,8 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/v1/auth/**").permitAll()
                 .requestMatchers("/api/v1/ingest/**").permitAll()
-                .requestMatchers(HttpMethod.GET, "/api/v1/dashboard/**", "/api/v1/incidents/**").authenticated()
+                .requestMatchers(HttpMethod.GET, "/api/v1/dashboard/**", "/api/v1/incidents/**", "/api/v1/health/**").authenticated()
+                .requestMatchers("/api/v1/simulate/**").authenticated()
                 .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
                 .requestMatchers("/api/**").authenticated()
                 .anyRequest().permitAll()  // static files + SPA routes are public

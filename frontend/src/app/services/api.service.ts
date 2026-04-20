@@ -2,9 +2,10 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-import { Incident, IncidentFilter, PagedResponse } from '../models/incident.model';
+import { Incident, IncidentFilter, IncidentType, PagedResponse } from '../models/incident.model';
 import { AvailabilityStats } from '../models/availability.model';
 import { Device, DeviceCreateRequest } from '../models/device.model';
+import { HealthSummary, OtherCamera } from '../models/health.model';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -57,5 +58,28 @@ export class ApiService {
 
   deleteDevice(id: number): Observable<void> {
     return this.http.delete<void>(`${this.base}/admin/devices/${id}`);
+  }
+
+  // --- Health Monitoring ---
+  getHealthSummary(): Observable<HealthSummary> {
+    return this.http.get<HealthSummary>(`${this.base}/health/summary`);
+  }
+
+  // --- Other Cameras ---
+  getOtherCameras(incidentId: number): Observable<OtherCamera[]> {
+    return this.http.get<OtherCamera[]>(`${this.base}/incidents/${incidentId}/other-cameras`);
+  }
+
+  // --- Simulation ---
+  simulateAlert(type: IncidentType): Observable<Incident> {
+    return this.http.post<Incident>(`${this.base}/simulate/alert`, { type });
+  }
+
+  simulateHealthState(state: 'all-good' | 'alert' | 'incident'): Observable<HealthSummary> {
+    return this.http.post<HealthSummary>(`${this.base}/simulate/health-state`, { state });
+  }
+
+  resetSimulation(): Observable<void> {
+    return this.http.post<void>(`${this.base}/simulate/reset`, {});
   }
 }

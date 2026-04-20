@@ -8,7 +8,7 @@
           <path d="M10 3L5 8l5 5"/>
         </svg>
       </button>
-      <span class="topnav-breadcrumb">{{ incident?.branch }} | {{ incident?.area }}</span>
+      <span class="topnav-breadcrumb">{{ incident?.branchName }} | {{ incident?.deviceLocation }}</span>
     </div>
     <span class="topnav-pic">PIC: <strong>Ari Dzar Ramadhani</strong></span>
   </header>
@@ -16,139 +16,147 @@
   <!-- Main Content -->
   <main class="detail-main">
 
-    <!-- Top: Sidebar + Video -->
-    <div class="detail-top">
+    @if (loading) {
+      <div class="empty-state">Loading...</div>
+    } @else if (error) {
+      <div class="empty-state" style="color:#f87171">{{ error }}</div>
+    } @else {
 
-      <!-- Left Sidebar -->
-      <aside class="detail-sidebar">
-        <div class="incident-type-badge" [ngClass]="'badge--' + incidentType?.icon">
-          {{ incident?.indication }}
-        </div>
-        <div class="sidebar-body">
-          <div class="detail-section-title">Incident Details</div>
-          <div class="detail-fields">
-            <div class="detail-row">
-              <span class="field-label">Area</span>
-              <span class="field-value">{{ incident?.area }}</span>
-            </div>
-            <div class="detail-row">
-              <span class="field-label">Activity</span>
-              <span class="field-value">{{ incident?.activity }}</span>
-            </div>
-            <div class="detail-row">
-              <span class="field-label">Time Detected</span>
-              <span class="field-value">{{ incident?.timeDetected }}</span>
-            </div>
-            <div class="detail-row">
-              <span class="field-label">Duration</span>
-              <span class="field-value">{{ incident?.duration }}</span>
+      <!-- Top: Sidebar + Video -->
+      <div class="detail-top">
+
+        <!-- Left Sidebar -->
+        <aside class="detail-sidebar">
+          <div class="incident-type-badge" [ngClass]="'badge--' + incidentType?.icon">
+            {{ incidentType?.name }}
+          </div>
+          <div class="sidebar-body">
+            <div class="detail-section-title">Incident Details</div>
+            <div class="detail-fields">
+              <div class="detail-row">
+                <span class="field-label">Area</span>
+                <span class="field-value">{{ incident?.deviceLocation }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="field-label">Activity</span>
+                <span class="field-value">{{ incident?.description }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="field-label">Time Detected</span>
+                <span class="field-value">{{ timeDetected }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="field-label">Duration</span>
+                <span class="field-value">{{ duration }}</span>
+              </div>
             </div>
           </div>
-        </div>
-      </aside>
+        </aside>
 
-      <!-- Video Panel -->
-      <div class="video-panel">
-        <div class="video-wrapper">
+        <!-- Video Panel -->
+        <div class="video-panel">
+          <div class="video-wrapper">
 
-          @if (incidentType?.videoSrc) {
-            <video #mainVideo
-                   [src]="incidentType.videoSrc"
-                   (timeupdate)="onTimeUpdate($event)"
-                   (loadedmetadata)="onLoadedMetadata($event)"
-                   (ended)="onVideoEnded()"
-                   (click)="togglePlay()"
-                   playsinline
-                   muted
-                   class="main-video"></video>
+            @if (incidentType?.videoSrc) {
+              <video #mainVideo
+                     [src]="incidentType!.videoSrc"
+                     (timeupdate)="onTimeUpdate($event)"
+                     (loadedmetadata)="onLoadedMetadata($event)"
+                     (ended)="onVideoEnded()"
+                     (click)="togglePlay()"
+                     playsinline
+                     muted
+                     class="main-video"></video>
 
-            <!-- Detection banner -->
-            <div class="detection-banner">
-              <svg class="detection-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M19 12A7 7 0 005 12c0 3.9 3.1 7 7 7s7-3.1 7-7zM3 12a9 9 0 1118 0A9 9 0 013 12zm9-4a1 1 0 011 1v3l1.5 1.5a1 1 0 01-1.4 1.4l-2-2A1 1 0 0110 13v-4a1 1 0 011-1z"/><path d="M12 2a1 1 0 011 1v1a1 1 0 01-2 0V3a1 1 0 011-1zM4.22 4.22a1 1 0 011.42 0l.7.7a1 1 0 01-1.42 1.42l-.7-.7a1 1 0 010-1.42zM2 12a1 1 0 011-1h1a1 1 0 010 2H3a1 1 0 01-1-1zm17-1h1a1 1 0 010 2h-1a1 1 0 010-2zm-2.34-6.07a1 1 0 010 1.41l-.7.7a1 1 0 01-1.42-1.41l.71-.7a1 1 0 011.41 0z"/></svg>
-              {{ detectionLabel }}
-            </div>
+              <!-- Detection banner -->
+              <div class="detection-banner">
+                <svg class="detection-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M19 12A7 7 0 005 12c0 3.9 3.1 7 7 7s7-3.1 7-7zM3 12a9 9 0 1118 0A9 9 0 013 12zm9-4a1 1 0 011 1v3l1.5 1.5a1 1 0 01-1.4 1.4l-2-2A1 1 0 0110 13v-4a1 1 0 011-1z"/><path d="M12 2a1 1 0 011 1v1a1 1 0 01-2 0V3a1 1 0 011-1zM4.22 4.22a1 1 0 011.42 0l.7.7a1 1 0 01-1.42 1.42l-.7-.7a1 1 0 010-1.42zM2 12a1 1 0 011-1h1a1 1 0 010 2H3a1 1 0 01-1-1zm17-1h1a1 1 0 010 2h-1a1 1 0 010-2zm-2.34-6.07a1 1 0 010 1.41l-.7.7a1 1 0 01-1.42-1.41l.71-.7a1 1 0 011.41 0z"/></svg>
+                {{ detectionLabel }}
+              </div>
 
-            <!-- Bounding box -->
-            <div class="bounding-box"></div>
+              <!-- Bounding box -->
+              <div class="bounding-box"></div>
 
-            <!-- Timestamp overlay -->
-            <div class="video-timestamp">{{ incidentDateDisplay }} {{ incident?.timeDetected }}</div>
+              <!-- Timestamp overlay -->
+              <div class="video-timestamp">{{ incidentDateDisplay }} {{ timeDetected }}</div>
 
-            <!-- Play overlay when paused -->
-            @if (!isPlaying) {
-              <div class="play-overlay" (click)="togglePlay()">
-                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              <!-- Play overlay when paused -->
+              @if (!isPlaying) {
+                <div class="play-overlay" (click)="togglePlay()">
+                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                </div>
+              }
+
+            } @else {
+              <div class="footage-placeholder">
+                <div class="footage-spinner"></div>
+                <span>Waiting for Footage</span>
               </div>
             }
 
-          } @else {
-            <div class="footage-placeholder">
-              <div class="footage-spinner"></div>
-              <span>Waiting for Footage</span>
+          </div>
+
+          <!-- Controls bar -->
+          @if (incidentType?.videoSrc) {
+            <div class="video-controls">
+              <button class="ctrl-btn" (click)="togglePlay()">
+                @if (isPlaying) {
+                  <svg viewBox="0 0 16 16" fill="currentColor"><rect x="3" y="2" width="4" height="12" rx="1"/><rect x="9" y="2" width="4" height="12" rx="1"/></svg>
+                } @else {
+                  <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 2l10 6-10 6z"/></svg>
+                }
+              </button>
+              <span class="ctrl-time">{{ currentTime }} / {{ totalDuration }}</span>
+              <div class="ctrl-progress">
+                <div class="progress-track">
+                  <div class="progress-fill" [style.width.%]="progressPercent"></div>
+                </div>
+              </div>
+              <button class="ctrl-btn">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4">
+                  <path d="M2 6.5H0v3h2l3.5 2.5v-8L2 6.5z" fill="currentColor" stroke="none"/>
+                  <path d="M8.5 5.5c1 1 1 4 0 5M11 4c2 2 2 6 0 8" stroke-linecap="round"/>
+                </svg>
+              </button>
+              <button class="ctrl-btn">
+                <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 5V1h4M15 5V1h-4M1 11v4h4M15 11v4h-4"/>
+                </svg>
+              </button>
             </div>
           }
-
         </div>
 
-        <!-- Controls bar -->
-        @if (incidentType?.videoSrc) {
-          <div class="video-controls">
-            <button class="ctrl-btn" (click)="togglePlay()">
-              @if (isPlaying) {
-                <svg viewBox="0 0 16 16" fill="currentColor"><rect x="3" y="2" width="4" height="12" rx="1"/><rect x="9" y="2" width="4" height="12" rx="1"/></svg>
-              } @else {
-                <svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 2l10 6-10 6z"/></svg>
-              }
-            </button>
-            <span class="ctrl-time">{{ currentTime }} / {{ totalDuration }}</span>
-            <div class="ctrl-progress">
-              <div class="progress-track">
-                <div class="progress-fill" [style.width.%]="progressPercent"></div>
-              </div>
-            </div>
-            <button class="ctrl-btn">
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4">
-                <path d="M2 6.5H0v3h2l3.5 2.5v-8L2 6.5z" fill="currentColor" stroke="none"/>
-                <path d="M8.5 5.5c1 1 1 4 0 5M11 4c2 2 2 6 0 8" stroke-linecap="round"/>
-              </svg>
-            </button>
-            <button class="ctrl-btn">
-              <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M1 5V1h4M15 5V1h-4M1 11v4h4M15 11v4h-4"/>
-              </svg>
-            </button>
-          </div>
-        }
       </div>
 
-    </div>
-
-    <!-- Other CCTV Section -->
-    <div class="other-cctv">
-      <h2 class="other-cctv-title">Other CCTV at {{ incident?.branch }}</h2>
-      <div class="other-cctv-grid">
-        @for (cam of otherCameras; track cam.cam) {
-          <div class="other-cam-card">
-            <div class="cam-card-info">
-              <div class="cam-alert-label" [ngClass]="'cam-label--' + incidentType?.icon">
-                {{ incident?.indication }}
+      <!-- Other CCTV Section -->
+      <div class="other-cctv">
+        <h2 class="other-cctv-title">Other CCTV at {{ incident?.branchName }}</h2>
+        <div class="other-cctv-grid">
+          @for (cam of otherCameras; track cam.id) {
+            <div class="other-cam-card">
+              <div class="cam-card-info">
+                <div class="cam-alert-label" [ngClass]="'cam-label--' + incidentType?.icon">
+                  {{ incidentType?.name }}
+                </div>
+                <div class="cam-branch-text">{{ incident?.branchName }} | {{ cam.cam }}</div>
+                <div class="cam-elapsed">Detected {{ cam.elapsed }}</div>
               </div>
-              <div class="cam-branch-text">{{ incident?.branch }} | {{ cam.cam }}</div>
-              <div class="cam-elapsed">Detected {{ cam.elapsed }}</div>
-            </div>
-            <div class="cam-thumb-wrap">
-              <video [src]="cam.videoSrc" autoplay muted loop playsinline class="cam-video"></video>
-              <div class="cam-overlay-top">
-                <span class="cam-type-tag">{{ incident?.indication | uppercase }}</span>
-                <span class="cam-detected-tag">Smoke Detected</span>
+              <div class="cam-thumb-wrap">
+                <video [src]="cam.videoSrc" autoplay muted loop playsinline class="cam-video"></video>
+                <div class="cam-overlay-top">
+                  <span class="cam-type-tag">{{ incidentType?.name }}</span>
+                  <span class="cam-detected-tag">{{ detectionLabel }}</span>
+                </div>
+                <div class="cam-det-box"></div>
+                <div class="cam-timestamp">{{ cam.timestamp }}</div>
               </div>
-              <div class="cam-det-box"></div>
-              <div class="cam-timestamp">{{ cam.timestamp }}</div>
             </div>
-          </div>
-        }
+          }
+        </div>
       </div>
-    </div>
+
+    }
 
   </main>
 </div>

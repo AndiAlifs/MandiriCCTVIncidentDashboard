@@ -1,6 +1,7 @@
 package com.mandiri.cctv.controller;
 
 import com.mandiri.cctv.dto.IncidentDto;
+import com.mandiri.cctv.dto.OtherCameraDto;
 import com.mandiri.cctv.entity.Incident;
 import com.mandiri.cctv.service.IncidentService;
 import lombok.RequiredArgsConstructor;
@@ -13,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.Instant;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/incidents")
@@ -34,6 +36,11 @@ public class IncidentController {
     @GetMapping("/{id}")
     public ResponseEntity<IncidentDto> get(@PathVariable Long id) {
         return ResponseEntity.ok(incidentService.findById(id));
+    }
+
+    @GetMapping("/{id}/other-cameras")
+    public ResponseEntity<List<OtherCameraDto>> otherCameras(@PathVariable Long id) {
+        return ResponseEntity.ok(incidentService.getOtherCameras(id));
     }
 
     @PatchMapping("/{id}/status")

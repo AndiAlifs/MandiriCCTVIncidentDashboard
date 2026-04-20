@@ -37,4 +37,10 @@ public interface IncidentRepository extends JpaRepository<Incident, Long> {
 
     @Query("SELECT i.type, COUNT(i) FROM Incident i GROUP BY i.type")
     List<Object[]> countByType();
+
+    @Query("""
+        SELECT i FROM Incident i JOIN FETCH i.device d JOIN FETCH d.branch
+        WHERE i.simulatedAt IS NOT NULL
+        """)
+    List<Incident> findSimulated();
 }

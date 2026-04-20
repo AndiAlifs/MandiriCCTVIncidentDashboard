@@ -11,13 +11,13 @@
       @if (openDropdown === 'profile') {
         <div class="dropdown-menu dropdown-menu--right" (click)="$event.stopPropagation()">
           <div class="dropdown-label">Simulate Incident</div>
-          @for (type of incidentTypes; track type.icon) {
+          @for (typeUi of incidentTypeUis; track typeUi.icon) {
             <div class="dropdown-item dropdown-item--simulate"
-                 [class.dropdown-item--active-alert]="isTypeActive(type.icon)"
-                 (click)="toggleAlert(type, $event)">
-              <span class="simulate-dot" [class.simulate-dot--active]="isTypeActive(type.icon)"></span>
-              <span class="simulate-label">{{ type.name }}</span>
-              @if (isTypeActive(type.icon)) {
+                 [class.dropdown-item--active-alert]="isTypeActive(typeUi.icon)"
+                 (click)="toggleAlert(typeUi, $event)">
+              <span class="simulate-dot" [class.simulate-dot--active]="isTypeActive(typeUi.icon)"></span>
+              <span class="simulate-label">{{ typeUi.name }}</span>
+              @if (isTypeActive(typeUi.icon)) {
                 <span class="simulate-stop-badge">Stop</span>
               }
             </div>
@@ -129,36 +129,36 @@
     <div class="card">
       <h2 class="card-title">Incident Overview</h2>
       <div class="incident-overview-row">
-        @for (type of incidentTypes; track type.icon; let last = $last) {
-          <div class="incident-type-item" [class.incident-type-item--alert]="isTypeActive(type.icon)">
+        @for (typeUi of incidentTypeUis; track typeUi.icon; let last = $last) {
+          <div class="incident-type-item" [class.incident-type-item--alert]="isTypeActive(typeUi.icon)">
             <span class="incident-type-icon">
-              @if (type.icon === 'fire') {
+              @if (typeUi.icon === 'fire') {
                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M12 2C12 2 8 7 8 11c0 1.1.4 2.1 1 2.9C8.4 12.7 7 11.4 7 11c0 0-1 3 1 5a6 6 0 0010 0c1.5-2 1-5 1-5s-1 2-3 2c2-3 0-7-4-11z" fill="#FF6B35" stroke="#FF6B35" stroke-width="0.5" stroke-linejoin="round"/>
                 </svg>
               }
-              @if (type.icon === 'unauthorized') {
+              @if (typeUi.icon === 'unauthorized') {
                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <circle cx="12" cy="8" r="3" stroke="#FF8C42" stroke-width="1.5"/>
                   <path d="M6 20c0-3.314 2.686-6 6-6s6 2.686 6 6" stroke="#FF8C42" stroke-width="1.5" stroke-linecap="round"/>
                   <path d="M20 9l-5 5M15 9l5 5" stroke="#FF8C42" stroke-width="1.5" stroke-linecap="round"/>
                 </svg>
               }
-              @if (type.icon === 'atm') {
+              @if (typeUi.icon === 'atm') {
                 <span class="atm-badge">ATM</span>
               }
-              @if (type.icon === 'afterhours') {
+              @if (typeUi.icon === 'afterhours') {
                 <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <circle cx="11" cy="11" r="7" stroke="#9B8BFF" stroke-width="1.5"/>
                   <path d="M20 20l-3-3" stroke="#9B8BFF" stroke-width="1.5" stroke-linecap="round"/>
                 </svg>
               }
             </span>
-            <span class="incident-type-name">{{ type.name }}</span>
-            @if (isTypeActive(type.icon)) {
+            <span class="incident-type-name">{{ typeUi.name }}</span>
+            @if (isTypeActive(typeUi.icon)) {
               <span class="incident-alert-count">1</span>
             }
-            <span class="incident-active-dot" [class.incident-active-dot--alert]="isTypeActive(type.icon)"></span>
+            <span class="incident-active-dot" [class.incident-active-dot--alert]="isTypeActive(typeUi.icon)"></span>
           </div>
           @if (!last) {
             <div class="incident-divider"></div>
@@ -172,21 +172,21 @@
       <div class="card">
         <h2 class="card-title">Recent Incident</h2>
         <div class="recent-incidents-row">
-          @for (alert of activeAlerts; track alert.type.icon) {
+          @for (alert of activeAlerts; track alert.typeUi.icon) {
             <div class="recent-incident-col" (click)="navigateToAlertDetail(alert, $event)" style="cursor:pointer">
               <div class="recent-incident-chip">
-                <span class="recent-incident-title">{{ alert.type.name }}</span>
-                <span class="recent-incident-branch">{{ alert.type.simulateBranch }} | {{ alert.type.simulateArea }}</span>
+                <span class="recent-incident-title">{{ alert.typeUi.name }}</span>
+                <span class="recent-incident-branch">{{ alert.incident.branchName }} | {{ alert.incident.deviceLocation }}</span>
                 <span class="recent-incident-elapsed">Detected {{ elapsedDisplay(alert.elapsedSeconds) }}</span>
               </div>
-              @if (!alert.footageReady || !alert.type.videoSrc) {
+              @if (!alert.footageReady || !alert.typeUi.videoSrc) {
                 <div class="footage-placeholder">
                   <div class="footage-spinner"></div>
                   <span>Waiting for Footage</span>
                 </div>
               }
-              @if (alert.footageReady && alert.type.videoSrc) {
-                <video class="footage-video" [src]="alert.type.videoSrc" autoplay muted loop playsinline></video>
+              @if (alert.footageReady && alert.typeUi.videoSrc) {
+                <video class="footage-video" [src]="alert.typeUi.videoSrc" autoplay muted loop playsinline></video>
               }
             </div>
           }
@@ -206,38 +206,44 @@
         </button>
       </div>
 
-      <div class="table-wrap">
-        <table class="history-table">
-          <thead>
-            <tr>
-              <th>Branch Name</th>
-              <th>Time Detected</th>
-              <th>Time Cleared</th>
-              <th>Duration</th>
-              <th>Area</th>
-              <th>Indication</th>
-              <th>Activity</th>
-              <th>Action</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (incident of incidents; track incident.id) {
+      @if (loading) {
+        <div class="empty-state">Loading incidents...</div>
+      } @else if (error) {
+        <div class="empty-state" style="color:#f87171">{{ error }}</div>
+      } @else {
+        <div class="table-wrap">
+          <table class="history-table">
+            <thead>
               <tr>
-                <td class="td-branch">{{ incident.branch }}</td>
-                <td class="td-time">{{ incident.timeDetected }}</td>
-                <td class="td-time">{{ incident.timeCleared }}</td>
-                <td class="td-duration">{{ incident.duration }}</td>
-                <td class="td-area">{{ incident.area }}</td>
-                <td class="td-indication">{{ incident.indication }}</td>
-                <td class="td-activity">{{ incident.activity }}</td>
-                <td class="td-action">
-                  <button class="btn-view-details" (click)="navigateToIncident(incident.id)">View Details</button>
-                </td>
+                <th>Branch Name</th>
+                <th>Time Detected</th>
+                <th>Time Cleared</th>
+                <th>Duration</th>
+                <th>Area</th>
+                <th>Indication</th>
+                <th>Activity</th>
+                <th>Action</th>
               </tr>
-            }
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              @for (incident of incidents; track incident.id) {
+                <tr>
+                  <td class="td-branch">{{ incident.branch }}</td>
+                  <td class="td-time">{{ incident.timeDetected }}</td>
+                  <td class="td-time">{{ incident.timeCleared }}</td>
+                  <td class="td-duration">{{ incident.duration }}</td>
+                  <td class="td-area">{{ incident.area }}</td>
+                  <td class="td-indication">{{ incident.indication }}</td>
+                  <td class="td-activity">{{ incident.activity }}</td>
+                  <td class="td-action">
+                    <button class="btn-view-details" (click)="navigateToIncident(incident.id)">View Details</button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
     </div>
 
   </main>

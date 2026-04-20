@@ -44,133 +44,46 @@
 
   <!-- Main Content -->
   <main class="main-content">
-    <div class="sections-grid">
 
-      <!-- NVR / DVR -->
-      <div class="section-card" [class.section-card--alert]="nvrOffline > 0">
-        <div class="section-header">
-          <h2 class="section-title">NVR / DVR</h2>
-          <span class="status-dot" [class.status-dot--alert]="nvrOffline > 0"></span>
-        </div>
+    @if (loading) {
+      <div class="empty-state">Loading health data...</div>
+    } @else if (error) {
+      <div class="empty-state" style="color:#f87171">{{ error }}</div>
+    } @else if (summary) {
 
-        <div class="stats-row">
-          <div class="stat stat--offline">
-            <span class="stat-label">Total Offline</span>
-            <span class="stat-value" [class.stat-value--alert]="nvrOffline > 0">{{ nvrOffline }} Device</span>
-          </div>
-          <div class="stat-sep"></div>
-          <div class="stat">
-            <span class="stat-label">Total Monitored</span>
-            <span class="stat-value">2398</span>
-          </div>
-          <div class="stat-sep"></div>
-          <div class="stat">
-            <span class="stat-label">Total Online</span>
-            <span class="stat-value">2391</span>
-          </div>
-        </div>
+      <div class="sections-grid">
 
-        <!-- NVR Recent Issues -->
-        <div class="panel" [class.panel--alert]="nvrRecentIssues.length > 0">
-          <div class="panel-header">
-            <span class="panel-title">Recent Issues</span>
-            <span class="panel-badge">{{ nvrRecentIssues.length }} Issues</span>
+        <!-- NVR / DVR -->
+        <div class="section-card" [class.section-card--alert]="summary.nvrOffline > 0">
+          <div class="section-header">
+            <h2 class="section-title">NVR / DVR</h2>
+            <span class="status-dot" [class.status-dot--alert]="summary.nvrOffline > 0"></span>
           </div>
-          @if (nvrRecentIssues.length === 0) {
-            <div class="empty-state">No Issues Detected</div>
-          } @else {
-            <div class="panel-table-wrap">
-              <table class="panel-table">
-                <thead>
-                  <tr>
-                    <th>IP Address</th>
-                    <th>Branch Name</th>
-                    <th>Last Sync</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (issue of nvrRecentIssues; track $index) {
-                    <tr>
-                      <td class="td-ip"><span class="offline-dot"></span>{{ issue.ipAddress }}</td>
-                      <td>{{ issue.branchName }}</td>
-                      <td class="td-sync">{{ issue.lastSync }}</td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
+
+          <div class="stats-row">
+            <div class="stat stat--offline">
+              <span class="stat-label">Total Offline</span>
+              <span class="stat-value" [class.stat-value--alert]="summary.nvrOffline > 0">{{ summary.nvrOffline }} Device</span>
             </div>
-          }
-        </div>
-
-        <!-- NVR Unresolved -->
-        <div class="panel">
-          <div class="panel-header">
-            <span class="panel-title">Unresolved &gt; 1 Day</span>
-            <span class="panel-badge">{{ nvrUnresolved.length }} Issues</span>
-          </div>
-          @if (nvrUnresolved.length === 0) {
-            <div class="empty-state">No Issues Detected</div>
-          } @else {
-            <div class="panel-table-wrap">
-              <table class="panel-table">
-                <thead>
-                  <tr>
-                    <th>IP Address</th>
-                    <th>Branch Name</th>
-                    <th>Downtime</th>
-                    <th>Status</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  @for (issue of nvrUnresolved; track $index) {
-                    <tr>
-                      <td class="td-ip" [class.td-critical]="issue.status === 'Critical'">{{ issue.ipAddress }}</td>
-                      <td [class.td-critical]="issue.status === 'Critical'">{{ issue.branchName }}</td>
-                      <td [class.td-critical]="issue.status === 'Critical'">{{ issue.downtime }}</td>
-                      <td><span class="status-badge" [ngClass]="'status-badge--' + issue.status.toLowerCase()">{{ issue.status }}</span></td>
-                    </tr>
-                  }
-                </tbody>
-              </table>
+            <div class="stat-sep"></div>
+            <div class="stat">
+              <span class="stat-label">Total Monitored</span>
+              <span class="stat-value">{{ summary.nvrTotal }}</span>
             </div>
-          }
-        </div>
-      </div>
-
-      <!-- CCTV -->
-      <div class="section-card" [class.section-card--alert]="cctvOffline > 0">
-        <div class="section-header">
-          <h2 class="section-title">CCTV</h2>
-          <span class="status-dot" [class.status-dot--alert]="cctvOffline > 0"></span>
-        </div>
-
-        <div class="stats-row">
-          <div class="stat stat--offline">
-            <span class="stat-label">Total Offline</span>
-            <span class="stat-value" [class.stat-value--alert]="cctvOffline > 0">{{ cctvOffline }} Device</span>
+            <div class="stat-sep"></div>
+            <div class="stat">
+              <span class="stat-label">Total Online</span>
+              <span class="stat-value">{{ summary.nvrOnline }}</span>
+            </div>
           </div>
-          <div class="stat-sep"></div>
-          <div class="stat">
-            <span class="stat-label">Total Monitored</span>
-            <span class="stat-value">{{ cctvMonitored }}</span>
-          </div>
-          <div class="stat-sep"></div>
-          <div class="stat">
-            <span class="stat-label">Total Online</span>
-            <span class="stat-value">{{ cctvOnline }}</span>
-          </div>
-        </div>
 
-        <!-- CCTV inner grid -->
-        <div class="cctv-panels">
-
-          <!-- Recent Issues (left, tall) -->
-          <div class="panel cctv-recent-panel" [class.panel--alert]="cctvRecentIssues.length > 0">
+          <!-- NVR Recent Issues -->
+          <div class="panel" [class.panel--alert]="summary.nvrRecentIssues.length > 0">
             <div class="panel-header">
               <span class="panel-title">Recent Issues</span>
-              <span class="panel-badge">10 Issues</span>
+              <span class="panel-badge">{{ summary.nvrRecentIssues.length }} Issues</span>
             </div>
-            @if (cctvRecentIssues.length === 0) {
+            @if (summary.nvrRecentIssues.length === 0) {
               <div class="empty-state">No Issues Detected</div>
             } @else {
               <div class="panel-table-wrap">
@@ -183,7 +96,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                    @for (issue of cctvRecentIssues; track $index) {
+                    @for (issue of summary.nvrRecentIssues; track $index) {
                       <tr>
                         <td class="td-ip"><span class="offline-dot"></span>{{ issue.ipAddress }}</td>
                         <td>{{ issue.branchName }}</td>
@@ -196,16 +109,75 @@
             }
           </div>
 
-          <!-- Right panels stacked -->
-          <div class="cctv-right-panels">
-
-            <!-- CCTV Unresolved -->
-            <div class="panel">
-              <div class="panel-header">
-                <span class="panel-title">Unresolved &gt; 1 Day</span>
-                <span class="panel-badge">{{ cctvUnresolved.length }} Issues</span>
+          <!-- NVR Unresolved -->
+          <div class="panel">
+            <div class="panel-header">
+              <span class="panel-title">Unresolved &gt; 1 Day</span>
+              <span class="panel-badge">{{ summary.nvrUnresolved.length }} Issues</span>
+            </div>
+            @if (summary.nvrUnresolved.length === 0) {
+              <div class="empty-state">No Issues Detected</div>
+            } @else {
+              <div class="panel-table-wrap">
+                <table class="panel-table">
+                  <thead>
+                    <tr>
+                      <th>IP Address</th>
+                      <th>Branch Name</th>
+                      <th>Downtime</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    @for (issue of summary.nvrUnresolved; track $index) {
+                      <tr>
+                        <td class="td-ip" [class.td-critical]="issue.status === 'Critical'">{{ issue.ipAddress }}</td>
+                        <td [class.td-critical]="issue.status === 'Critical'">{{ issue.branchName }}</td>
+                        <td [class.td-critical]="issue.status === 'Critical'">{{ issue.downtime }}</td>
+                        <td><span class="status-badge" [ngClass]="'status-badge--' + issue.status.toLowerCase()">{{ issue.status }}</span></td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
               </div>
-              @if (cctvUnresolved.length === 0) {
+            }
+          </div>
+        </div>
+
+        <!-- CCTV -->
+        <div class="section-card" [class.section-card--alert]="summary.cctvOffline > 0">
+          <div class="section-header">
+            <h2 class="section-title">CCTV</h2>
+            <span class="status-dot" [class.status-dot--alert]="summary.cctvOffline > 0"></span>
+          </div>
+
+          <div class="stats-row">
+            <div class="stat stat--offline">
+              <span class="stat-label">Total Offline</span>
+              <span class="stat-value" [class.stat-value--alert]="summary.cctvOffline > 0">{{ summary.cctvOffline }} Device</span>
+            </div>
+            <div class="stat-sep"></div>
+            <div class="stat">
+              <span class="stat-label">Total Monitored</span>
+              <span class="stat-value">{{ summary.cctvTotal }}</span>
+            </div>
+            <div class="stat-sep"></div>
+            <div class="stat">
+              <span class="stat-label">Total Online</span>
+              <span class="stat-value">{{ summary.cctvOnline }}</span>
+            </div>
+          </div>
+
+          <!-- CCTV inner grid -->
+          <div class="cctv-panels">
+
+            <!-- Recent Issues (left, tall) -->
+            <div class="panel cctv-recent-panel" [class.panel--alert]="summary.cctvRecentIssues.length > 0">
+              <div class="panel-header">
+                <span class="panel-title">Recent Issues</span>
+                <span class="panel-badge">{{ summary.cctvRecentIssues.length }} Issues</span>
+              </div>
+              @if (summary.cctvRecentIssues.length === 0) {
                 <div class="empty-state">No Issues Detected</div>
               } @else {
                 <div class="panel-table-wrap">
@@ -214,17 +186,15 @@
                       <tr>
                         <th>IP Address</th>
                         <th>Branch Name</th>
-                        <th>Downtime</th>
-                        <th>Status</th>
+                        <th>Last Sync</th>
                       </tr>
                     </thead>
                     <tbody>
-                      @for (issue of cctvUnresolved; track $index) {
+                      @for (issue of summary.cctvRecentIssues; track $index) {
                         <tr>
-                          <td class="td-ip" [class.td-critical]="issue.status === 'Critical'">{{ issue.ipAddress }}</td>
-                          <td [class.td-critical]="issue.status === 'Critical'">{{ issue.branchName }}</td>
-                          <td [class.td-critical]="issue.status === 'Critical'">{{ issue.downtime }}</td>
-                          <td><span class="status-badge" [ngClass]="'status-badge--' + issue.status.toLowerCase()">{{ issue.status }}</span></td>
+                          <td class="td-ip"><span class="offline-dot"></span>{{ issue.ipAddress }}</td>
+                          <td>{{ issue.branchName }}</td>
+                          <td class="td-sync">{{ issue.lastSync }}</td>
                         </tr>
                       }
                     </tbody>
@@ -233,41 +203,80 @@
               }
             </div>
 
-            <!-- Branches with Highest CCTV Offline Rate -->
-            <div class="panel">
-              <div class="panel-header">
-                <span class="panel-title">Branches with Highest CCTV Offline Rate</span>
+            <!-- Right panels stacked -->
+            <div class="cctv-right-panels">
+
+              <!-- CCTV Unresolved -->
+              <div class="panel">
+                <div class="panel-header">
+                  <span class="panel-title">Unresolved &gt; 1 Day</span>
+                  <span class="panel-badge">{{ summary.cctvUnresolved.length }} Issues</span>
+                </div>
+                @if (summary.cctvUnresolved.length === 0) {
+                  <div class="empty-state">No Issues Detected</div>
+                } @else {
+                  <div class="panel-table-wrap">
+                    <table class="panel-table">
+                      <thead>
+                        <tr>
+                          <th>IP Address</th>
+                          <th>Branch Name</th>
+                          <th>Downtime</th>
+                          <th>Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (issue of summary.cctvUnresolved; track $index) {
+                          <tr>
+                            <td class="td-ip" [class.td-critical]="issue.status === 'Critical'">{{ issue.ipAddress }}</td>
+                            <td [class.td-critical]="issue.status === 'Critical'">{{ issue.branchName }}</td>
+                            <td [class.td-critical]="issue.status === 'Critical'">{{ issue.downtime }}</td>
+                            <td><span class="status-badge" [ngClass]="'status-badge--' + issue.status.toLowerCase()">{{ issue.status }}</span></td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                }
               </div>
-              @if (branchRates.length === 0) {
-                <div class="empty-state">No Issues Detected</div>
-              } @else {
-                <div class="panel-table-wrap">
-                  <table class="panel-table">
-                    <thead>
-                      <tr>
-                        <th>Branch Name</th>
-                        <th>Offline Rate (%)</th>
-                        <th>Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      @for (branch of branchRates; track branch.branchName) {
-                        <tr>
-                          <td [class.td-critical]="branch.status === 'Critical'">{{ branch.branchName }}</td>
-                          <td [class.td-critical]="branch.status === 'Critical'">{{ branch.offlineRate }}%</td>
-                          <td><span class="status-badge" [ngClass]="'status-badge--' + branch.status.toLowerCase()">{{ branch.status }}</span></td>
-                        </tr>
-                      }
-                    </tbody>
-                  </table>
-                </div>
-              }
-            </div>
 
+              <!-- Branches with Highest CCTV Offline Rate -->
+              <div class="panel">
+                <div class="panel-header">
+                  <span class="panel-title">Branches with Highest CCTV Offline Rate</span>
+                </div>
+                @if (summary.branchRates.length === 0) {
+                  <div class="empty-state">No Issues Detected</div>
+                } @else {
+                  <div class="panel-table-wrap">
+                    <table class="panel-table">
+                      <thead>
+                        <tr>
+                          <th>Branch Name</th>
+                          <th>Offline Rate (%)</th>
+                          <th>Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (branch of summary.branchRates; track branch.branchName) {
+                          <tr>
+                            <td [class.td-critical]="branch.status === 'Critical'">{{ branch.branchName }}</td>
+                            <td [class.td-critical]="branch.status === 'Critical'">{{ branch.offlineRate }}%</td>
+                            <td><span class="status-badge" [ngClass]="'status-badge--' + branch.status.toLowerCase()">{{ branch.status }}</span></td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                }
+              </div>
+
+            </div>
           </div>
         </div>
+
       </div>
 
-    </div>
+    }
   </main>
 </div>

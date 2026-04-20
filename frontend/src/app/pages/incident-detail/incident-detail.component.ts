@@ -1,21 +1,10 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { INCIDENT_TYPES, MOCK_INCIDENTS, IncidentRecord, IncidentType } from '../../data/incidents.data';
-
-interface OtherCamera {
-  cam: string;
-  elapsed: string;
-  videoSrc: string;
-  timestamp: string;
-}
-
-const OTHER_CAMERAS: OtherCamera[] = [
-  { cam: 'CAM 2 - Lounge Area', elapsed: '4m 1s ago',  videoSrc: '/asset/asap_1.mp4',           timestamp: '28 Mar 2026 10:30:20 WIB' },
-  { cam: 'CAM 3 - ATM Area',    elapsed: '2m 7s ago',  videoSrc: '/asset/unatorized_access.mp4', timestamp: '28 Mar 2026 10:31:55 WIB' },
-  { cam: 'CAM 4 - Teller Area', elapsed: '4m 30s ago', videoSrc: '/asset/asap_2.mp4',            timestamp: '28 Mar 2026 10:10:29 WIB' },
-  { cam: 'CAM 5 - Teller Area', elapsed: '2m 10s ago', videoSrc: '/asset/asap_1.mp4',            timestamp: '28 Mar 2026 04:05:05 WIB' },
-];
+import { ApiService } from '../../services/api.service';
+import { Incident } from '../../models/incident.model';
+import { OtherCamera } from '../../models/health.model';
+import { IncidentTypeUi, typeUiFor } from '../../data/incident-types.data';
 
 @Component({
   selector: 'app-incident-detail',
@@ -27,22 +16,33 @@ const OTHER_CAMERAS: OtherCamera[] = [
 export class IncidentDetailComponent implements OnInit {
   @ViewChild('mainVideo') mainVideo!: ElementRef<HTMLVideoElement>;
 
-  incident!: IncidentRecord;
-  incidentType!: IncidentType;
+  incident: Incident | null = null;
+  incidentType: IncidentTypeUi | null = null;
+  otherCameras: OtherCamera[] = [];
+  loading = true;
+  error: string | null = null;
 
   isPlaying = false;
   currentTime = '0:00';
   totalDuration = '0:00';
   progressPercent = 0;
 
-  readonly otherCameras = OTHER_CAMERAS;
-
-  constructor(private route: ActivatedRoute, private router: Router) {}
+  constructor(private route: ActivatedRoute, private router: Router, private api: ApiService) {}
 
   ngOnInit(): void {
     const id = Number(this.route.snapshot.paramMap.get('id'));
-    this.incident = MOCK_INCIDENTS.find(i => i.id === id) ?? MOCK_INCIDENTS[0];
-    this.incidentType = INCIDENT_TYPES.find(t => t.name === this.incident.indication) ?? INCIDENT_TYPES[0];
+    this.api.getIncident(id).subscribe({
+      next: inc => {
+        this.incident = inc;
+        this.incidentType = typeUiFor(inc.type);
+        this.loading = false;
+      },
+      error: () => { this.error = 'Failed to load incident.'; this.loading = false; },
+    });
+    this.api.getOtherCameras(id).subscribe({
+      next: cams => { this.otherCameras = cams; },
+      error: () => { /* non-critical, just skip */ },
+    });
   }
 
   goBack(): void {
@@ -60,7 +60,35 @@ export class IncidentDetailComponent implements OnInit {
   }
 
   get incidentDateDisplay(): string {
-    return '28 Mar 2026';
+    if (!this.incident) return '';
+    return new Date(this.incident.detectedAt).toLocaleDateString('en-GB', {
+      day: '2-digit', month: 'short', year: 'numeric', timeZone: 'Asia/Jakarta',
+    });
+  }
+
+  get timeDetected(): string {
+    if (!this.incident) return '';
+    return new Date(this.incident.detectedAt).toLocaleTimeString('id-ID', {
+      hour: '2-digit', minute: '2-digit', second: '2-digit',
+      timeZone: 'Asia/Jakarta', hour12: false,
+    }) + ' WIB';
+  }
+
+  get timeCleared(): string {
+    if (!this.incident?.clearedAt) return '—';
+    return new Date(this.incident.clearedAt).toLocaleTimeString('id-ID', {
+      hour: '2-digit', minute: '2-digit', second: '2-digit',
+      timeZone: 'Asia/Jakarta', hour12: false,
+    }) + ' WIB';
+  }
+
+  get duration(): string {
+    if (!this.incident?.clearedAt) return '—';
+    const ms = new Date(this.incident.clearedAt).getTime() - new Date(this.incident.detectedAt).getTime();
+    const totalSec = Math.floor(ms / 1000);
+    const m = Math.floor(totalSec / 60);
+    const s = totalSec % 60;
+    return m > 0 ? `${m}m ${s}s` : `${s}s`;
   }
 
   togglePlay(): void {

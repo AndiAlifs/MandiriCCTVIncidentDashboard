@@ -13,6 +13,7 @@ public record DeviceDto(
     String ipAddress,
     String location,
     Device.Status status,
+    Device.DeviceType deviceType,
     Instant lastPing
 ) {
     public static DeviceDto from(Device d) {
@@ -23,6 +24,7 @@ public record DeviceDto(
             d.getIpAddress(),
             d.getLocation(),
             d.getStatus(),
+            d.getDeviceType(),
             d.getLastPing()
         );
     }

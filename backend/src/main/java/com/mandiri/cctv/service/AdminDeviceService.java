@@ -24,6 +24,13 @@ public class AdminDeviceService {
         return deviceRepository.findAll(pageable).map(DeviceDto::from);
     }
 
+    @Transactional(readOnly = true)
+    public DeviceDto findById(Long deviceId) {
+        Device device = deviceRepository.findById(deviceId)
+            .orElseThrow(() -> new EntityNotFoundException("Device not found: " + deviceId));
+        return DeviceDto.from(device);
+    }
+
     @Transactional
     public DeviceDto create(DeviceDto.CreateRequest req) {
         Branch branch = branchRepository.findById(req.branchId())
@@ -33,27 +40,30 @@ public class AdminDeviceService {
             .location(req.location())
             .ipAddress(req.ipAddress())
             .status(Device.Status.ONLINE)
+            .deviceType(req.deviceType() != null ? req.deviceType() : Device.DeviceType.CCTV)
             .build();
         return DeviceDto.from(deviceRepository.save(device));
     }
 
     @Transactional
-    public DeviceDto update(Long id, DeviceDto.CreateRequest req) {
-        Device device = deviceRepository.findById(id)
-            .orElseThrow(() -> new EntityNotFoundException("Device not found: " + id));
+    public DeviceDto update(Long deviceId, DeviceDto.UpdateRequest req) {
+        Device device = deviceRepository.findById(deviceId)
+            .orElseThrow(() -> new EntityNotFoundException("Device not found: " + deviceId));
         Branch branch = branchRepository.findById(req.branchId())
             .orElseThrow(() -> new EntityNotFoundException("Branch not found: " + req.branchId()));
         device.setBranch(branch);
         device.setLocation(req.location());
         device.setIpAddress(req.ipAddress());
+        if (req.deviceType() != null) device.setDeviceType(req.deviceType());
+        if (req.status() != null) device.setStatus(req.status());
         return DeviceDto.from(deviceRepository.save(device));
     }
 
     @Transactional
-    public void delete(Long id) {
-        if (!deviceRepository.existsById(id)) {
-            throw new EntityNotFoundException("Device not found: " + id);
+    public void delete(Long deviceId) {
+        if (!deviceRepository.existsById(deviceId)) {
+            throw new EntityNotFoundException("Device not found: " + deviceId);
         }
-        deviceRepository.deleteById(id);
+        deviceRepository.deleteById(deviceId);
     }
 }

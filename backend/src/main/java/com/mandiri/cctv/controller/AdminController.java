@@ -24,21 +24,26 @@ public class AdminController {
         return ResponseEntity.ok(adminDeviceService.findAll(pageable));
     }
 
+    @GetMapping("/devices/{deviceId}")
+    public ResponseEntity<DeviceDto> getDevice(@PathVariable Long deviceId) {
+        return ResponseEntity.ok(adminDeviceService.findById(deviceId));
+    }
+
     @PostMapping("/devices")
     public ResponseEntity<DeviceDto> createDevice(@Valid @RequestBody DeviceDto.CreateRequest req) {
         return ResponseEntity.status(HttpStatus.CREATED).body(adminDeviceService.create(req));
     }
 
-    @PutMapping("/devices/{id}")
+    @PutMapping("/devices/{deviceId}")
     public ResponseEntity<DeviceDto> updateDevice(
-            @PathVariable Long id,
-            @Valid @RequestBody DeviceDto.CreateRequest req) {
-        return ResponseEntity.ok(adminDeviceService.update(id, req));
+            @PathVariable Long deviceId,
+            @Valid @RequestBody DeviceDto.UpdateRequest req) {
+        return ResponseEntity.ok(adminDeviceService.update(deviceId, req));
     }
 
-    @DeleteMapping("/devices/{id}")
-    public ResponseEntity<Void> deleteDevice(@PathVariable Long id) {
-        adminDeviceService.delete(id);
+    @DeleteMapping("/devices/{deviceId}")
+    public ResponseEntity<Void> deleteDevice(@PathVariable Long deviceId) {
+        adminDeviceService.delete(deviceId);
         return ResponseEntity.noContent().build();
     }
 }

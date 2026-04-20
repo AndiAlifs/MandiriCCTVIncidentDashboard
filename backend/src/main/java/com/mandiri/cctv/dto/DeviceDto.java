@@ -32,6 +32,15 @@ public record DeviceDto(
     public record CreateRequest(
         @NotNull Long branchId,
         @NotBlank String location,
-        String ipAddress
+        String ipAddress,
+        Device.DeviceType deviceType
+    ) {}
+
+    public record UpdateRequest(
+        @NotNull Long branchId,
+        @NotBlank String location,
+        String ipAddress,
+        Device.DeviceType deviceType,
+        Device.Status status
     ) {}
 }

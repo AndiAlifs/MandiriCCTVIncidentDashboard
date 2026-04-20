@@ -1,0 +1,70 @@
+<div class="admin-page">
+  <header class="page-header">
+    <h1>Device Management</h1>
+    <button class="btn-primary" (click)="openCreate()">+ Add Device</button>
+  </header>
+
+  @if (loading) {
+    <div class="state-message">Loading…</div>
+  } @else if (error) {
+    <div class="state-message error">{{ error }}</div>
+  } @else {
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th><th>Branch</th><th>Location</th><th>IP Address</th><th>Status</th><th>Last Ping</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (d of devices; track d.id) {
+            <tr>
+              <td>{{ d.id }}</td>
+              <td>{{ d.branchName }}</td>
+              <td>{{ d.location }}</td>
+              <td>{{ d.ipAddress ?? '—' }}</td>
+              <td><span class="badge" [class.online]="d.status === 'ONLINE'" [class.offline]="d.status === 'OFFLINE'">{{ d.status }}</span></td>
+              <td>{{ d.lastPing ? (d.lastPing | date:'short') : '—' }}</td>
+              <td class="actions">
+                <button class="btn-sm" (click)="openEdit(d)">Edit</button>
+                <button class="btn-sm danger" (click)="delete(d.id)">Delete</button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination">
+      <button [disabled]="page === 0" (click)="prevPage()">Previous</button>
+      <span>Page {{ page + 1 }}</span>
+      <button [disabled]="(page + 1) * pageSize >= totalElements" (click)="nextPage()">Next</button>
+    </div>
+  }
+
+  @if (showForm) {
+    <div class="modal-backdrop" (click)="showForm = false">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <h2>{{ editingId ? 'Edit Device' : 'Add Device' }}</h2>
+        <form (ngSubmit)="save()">
+          <label>
+            Branch ID
+            <input type="number" [(ngModel)]="form.branchId" name="branchId" required />
+          </label>
+          <label>
+            Location
+            <input type="text" [(ngModel)]="form.location" name="location" required />
+          </label>
+          <label>
+            IP Address (optional)
+            <input type="text" [(ngModel)]="form.ipAddress" name="ipAddress" />
+          </label>
+          <div class="modal-actions">
+            <button type="button" class="btn-sm" (click)="showForm = false">Cancel</button>
+            <button type="submit" class="btn-primary">Save</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</div>

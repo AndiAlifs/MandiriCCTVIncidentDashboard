@@ -1,0 +1,80 @@
+<div class="availability-page">
+  <header class="page-header">
+    <h1>CCTV Availability</h1>
+    <p class="subtitle">Real-time camera uptime across all branches</p>
+  </header>
+
+  @if (loading) {
+    <div class="state-message">Loading availability data…</div>
+  } @else if (error) {
+    <div class="state-message error">{{ error }}</div>
+  } @else if (stats) {
+    <!-- KPI cards -->
+    <section class="kpi-grid">
+      <div class="kpi-card online">
+        <span class="kpi-value">{{ stats.onlineDevices }}</span>
+        <span class="kpi-label">Cameras Online</span>
+      </div>
+      <div class="kpi-card offline">
+        <span class="kpi-value">{{ stats.offlineDevices }}</span>
+        <span class="kpi-label">Cameras Offline</span>
+      </div>
+      <div class="kpi-card uptime">
+        <span class="kpi-value">{{ stats.uptimePercent | number:'1.1-1' }}%</span>
+        <span class="kpi-label">Overall Uptime</span>
+      </div>
+      <div class="kpi-card open">
+        <span class="kpi-value">{{ stats.openIncidents }}</span>
+        <span class="kpi-label">Open Incidents</span>
+      </div>
+    </section>
+
+    <!-- Region breakdown -->
+    <section class="region-section">
+      <h2>By Region</h2>
+      <div class="region-table-wrapper">
+        <table class="region-table">
+          <thead>
+            <tr>
+              <th>Region</th>
+              <th>Total Cameras</th>
+              <th>Online</th>
+              <th>Uptime</th>
+              <th>Status Bar</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of stats.byRegion; track r.region) {
+              <tr>
+                <td>{{ r.region }}</td>
+                <td>{{ r.totalDevices }}</td>
+                <td>{{ r.onlineDevices }}</td>
+                <td>{{ r.uptimePercent | number:'1.1-1' }}%</td>
+                <td>
+                  <div class="uptime-bar">
+                    <div class="uptime-fill"
+                         [style.width.%]="r.uptimePercent"
+                         [class.good]="r.uptimePercent >= 90"
+                         [class.warn]="r.uptimePercent >= 70 && r.uptimePercent < 90"
+                         [class.bad]="r.uptimePercent < 70">
+                    </div>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Incident summary -->
+    <section class="incident-summary">
+      <h2>Incident Summary</h2>
+      <div class="incident-pills">
+        <span class="pill open">Open: {{ stats.openIncidents }}</span>
+        <span class="pill in-progress">In Progress: {{ stats.inProgressIncidents }}</span>
+        <span class="pill resolved">Resolved: {{ stats.resolvedIncidents }}</span>
+      </div>
+    </section>
+  }
+</div>

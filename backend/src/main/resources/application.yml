@@ -1,0 +1,22 @@
+spring:
+  profiles:
+    active: dev   # override with -Dspring.profiles.active=staging|prod
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    open-in-view: false
+  flyway:
+    enabled: true
+    # {vendor} is replaced by Flyway with 'postgresql' or 'oracle' automatically
+    locations: classpath:db/migration/{vendor}
+
+server:
+  port: 8080
+
+app:
+  jwt:
+    secret: ${JWT_SECRET:mandiri-cctv-secret-key-must-be-at-least-256-bits-long-for-hs256}
+    expiration-ms: 86400000  # 24 hours
+  cors:
+    allowed-origins: ${CORS_ORIGINS:http://localhost:4200}

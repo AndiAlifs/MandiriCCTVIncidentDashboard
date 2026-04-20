@@ -1,0 +1,10 @@
+spring:
+  datasource:
+    url: jdbc:oracle:thin:@//${DB_HOST:localhost}:1521/${DB_SERVICE:mandiri_cctv}
+    username: ${DB_USERNAME:cctv_user}
+    password: ${DB_PASSWORD}
+    driver-class-name: oracle.jdbc.OracleDriver
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.OracleDialect

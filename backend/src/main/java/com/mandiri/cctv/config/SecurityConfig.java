@@ -59,7 +59,9 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/swagger-ui/**", "/swagger-ui.html", "/v3/api-docs/**").permitAll()
                 .requestMatchers("/api/v1/auth/**").permitAll()
-                .requestMatchers("/api/v1/ingest/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/v1/incidents").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/v1/devices/*/heartbeats").permitAll()
+                .requestMatchers("/api/v1/incidents/token/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/dashboard/**", "/api/v1/incidents/**", "/api/v1/health/**").authenticated()
                 .requestMatchers("/api/v1/simulate/**").authenticated()
                 .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")

@@ -36,6 +36,14 @@ export class ApiService {
     return this.http.get<Incident>(`${this.base}/incidents/${id}`);
   }
 
+  getIncidentByToken(token: string): Observable<Incident> {
+    return this.http.get<Incident>(`${this.base}/incidents/token/${token}`);
+  }
+
+  clearIncidentByToken(token: string): Observable<Incident> {
+    return this.http.post<Incident>(`${this.base}/incidents/token/${token}/clear`, null);
+  }
+
   updateIncidentStatus(id: number, status: string): Observable<Incident> {
     return this.http.patch<Incident>(`${this.base}/incidents/${id}/status`, null, {
       params: { status },

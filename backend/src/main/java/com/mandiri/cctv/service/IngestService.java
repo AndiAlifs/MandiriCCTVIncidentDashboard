@@ -11,6 +11,7 @@ import com.mandiri.cctv.repository.IncidentCameraRepository;
 import com.mandiri.cctv.repository.IncidentRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +21,9 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class IngestService {
+
+    @Value("${app.frontend.base-url}")
+    private String frontendBaseUrl;
 
     private final DeviceRepository deviceRepository;
     private final IncidentRepository incidentRepository;
@@ -67,6 +71,6 @@ public class IngestService {
             incidentCameraRepository.saveAll(cameras);
         }
 
-        return IncidentDto.from(saved);
+        return IncidentDto.from(saved, frontendBaseUrl);
     }
 }

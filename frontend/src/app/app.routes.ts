@@ -9,6 +9,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/login/login.component').then(m => m.LoginComponent),
   },
   {
+    path: 'incident/clear/:token',
+    loadComponent: () => import('./pages/incident-clear/incident-clear.component').then(m => m.IncidentClearComponent),
+  },
+  {
     path: 'incident-monitoring',
     loadComponent: () => import('./pages/incident-monitoring/incident-monitoring.component').then(m => m.IncidentMonitoringComponent),
     canActivate: [authGuard],

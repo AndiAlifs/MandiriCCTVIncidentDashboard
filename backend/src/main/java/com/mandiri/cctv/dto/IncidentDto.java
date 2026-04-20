@@ -17,11 +17,14 @@ public record IncidentDto(
     String activity,
     String evidenceUrl,
     Instant detectedAt,
-    Instant clearedAt
+    Instant clearedAt,
+    String clearToken,
+    String clearUrl
 ) {
-    public static IncidentDto from(Incident i) {
+    public static IncidentDto from(Incident i, String frontendBaseUrl) {
         var device = i.getDevice();
         var branch = device.getBranch();
+        String token = i.getClearToken();
         return new IncidentDto(
             i.getId(),
             device.getId(),
@@ -35,7 +38,9 @@ public record IncidentDto(
             i.getActivity(),
             i.getEvidenceUrl(),
             i.getDetectedAt(),
-            i.getClearedAt()
+            i.getClearedAt(),
+            token,
+            frontendBaseUrl + "/incident/clear/" + token
         );
     }
 }

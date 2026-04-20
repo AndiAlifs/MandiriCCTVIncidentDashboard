@@ -10,6 +10,7 @@ import com.mandiri.cctv.repository.IncidentCameraRepository;
 import com.mandiri.cctv.repository.IncidentRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -34,6 +35,9 @@ public class IncidentService {
         DateTimeFormatter.ofPattern("dd MMM yyyy HH:mm:ss", Locale.ENGLISH)
             .withZone(ZoneId.of("Asia/Jakarta"));
 
+    @Value("${app.frontend.base-url}")
+    private String frontendBaseUrl;
+
     private final IncidentRepository incidentRepository;
     private final IncidentCameraRepository incidentCameraRepository;
     private final DeviceRepository deviceRepository;
@@ -50,13 +54,13 @@ public class IncidentService {
         if (type   != null) spec = spec.and((r, q, cb) -> cb.equal(r.get("type"), type));
         if (from   != null) spec = spec.and((r, q, cb) -> cb.greaterThanOrEqualTo(r.get("detectedAt"), from));
         if (to     != null) spec = spec.and((r, q, cb) -> cb.lessThanOrEqualTo(r.get("detectedAt"), to));
-        return incidentRepository.findAll(spec, pageable).map(IncidentDto::from);
+        return incidentRepository.findAll(spec, pageable).map(i -> IncidentDto.from(i, frontendBaseUrl));
     }
 
     @Transactional(readOnly = true)
     public IncidentDto findById(Long id) {
         return incidentRepository.findById(id)
-            .map(IncidentDto::from)
+            .map(i -> IncidentDto.from(i, frontendBaseUrl))
             .orElseThrow(() -> new EntityNotFoundException("Incident not found: " + id));
     }
 
@@ -100,7 +104,25 @@ public class IncidentService {
         if (newStatus == Incident.Status.RESOLVED && incident.getClearedAt() == null) {
             incident.setClearedAt(Instant.now());
         }
-        return IncidentDto.from(incidentRepository.save(incident));
+        return IncidentDto.from(incidentRepository.save(incident), frontendBaseUrl);
+    }
+
+    @Transactional(readOnly = true)
+    public IncidentDto findByToken(String token) {
+        return incidentRepository.findByClearToken(token)
+            .map(i -> IncidentDto.from(i, frontendBaseUrl))
+            .orElseThrow(() -> new EntityNotFoundException("Incident not found for token"));
+    }
+
+    @Transactional
+    public IncidentDto clearByToken(String token) {
+        Incident incident = incidentRepository.findByClearToken(token)
+            .orElseThrow(() -> new EntityNotFoundException("Incident not found for token"));
+        incident.setStatus(Incident.Status.RESOLVED);
+        if (incident.getClearedAt() == null) {
+            incident.setClearedAt(Instant.now());
+        }
+        return IncidentDto.from(incidentRepository.save(incident), frontendBaseUrl);
     }
 
     private String formatElapsed(Duration d) {

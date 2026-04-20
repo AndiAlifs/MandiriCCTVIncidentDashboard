@@ -8,6 +8,7 @@ import com.mandiri.cctv.repository.DeviceRepository;
 import com.mandiri.cctv.repository.IncidentRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +19,9 @@ import java.util.Map;
 @Service
 @RequiredArgsConstructor
 public class SimulationService {
+
+    @Value("${app.frontend.base-url}")
+    private String frontendBaseUrl;
 
     private final DeviceRepository deviceRepository;
     private final IncidentRepository incidentRepository;
@@ -47,7 +51,7 @@ public class SimulationService {
             .simulatedAt(now)
             .build();
 
-        return IncidentDto.from(incidentRepository.save(incident));
+        return IncidentDto.from(incidentRepository.save(incident), frontendBaseUrl);
     }
 
     @Transactional

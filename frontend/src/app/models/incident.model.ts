@@ -18,9 +18,12 @@ export interface Incident {
   severity: IncidentSeverity;
   status: IncidentStatus;
   description: string | null;
+  activity: string | null;
   evidenceUrl: string | null;
   detectedAt: string;
   clearedAt: string | null;
+  clearToken: string;
+  clearUrl: string;
 }
 
 export interface PagedResponse<T> {

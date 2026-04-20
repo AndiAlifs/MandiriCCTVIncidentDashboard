@@ -6,6 +6,7 @@ import lombok.*;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "incidents")
@@ -53,6 +54,10 @@ public class Incident {
 
     @Column(name = "simulated_at")
     private Instant simulatedAt;
+
+    @Builder.Default
+    @Column(name = "clear_token", unique = true, length = 36, nullable = false)
+    private String clearToken = UUID.randomUUID().toString();
 
     @OneToMany(mappedBy = "incident", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default

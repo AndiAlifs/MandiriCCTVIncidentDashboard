@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface IncidentRepository extends JpaRepository<Incident, Long>, JpaSpecificationExecutor<Incident> {
@@ -27,4 +28,6 @@ public interface IncidentRepository extends JpaRepository<Incident, Long>, JpaSp
         WHERE i.simulatedAt IS NOT NULL
         """)
     List<Incident> findSimulated();
+
+    Optional<Incident> findByClearToken(String clearToken);
 }

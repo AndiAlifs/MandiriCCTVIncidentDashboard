@@ -27,7 +27,7 @@ INSERT INTO devices (branch_id, location, status, last_ping) VALUES
 
 -- Seed default admin user (password: Admin@1234 — bcrypt encoded)
 INSERT INTO users (username, password, role) VALUES
-  ('admin', '$2a$12$XdlJrk9h5w6Kd9KQ9lFKP.uZJq2bL1VZXFk5wKb7lRxYQ2hV/PJqC', 'ADMIN');
+  ('admin', '$2b$12$7fYeYGSCSS4.TGUmu08d9.yC1tMeA1b7DrALTKGuSJBOmW4U8mrzK', 'ADMIN');
 
 -- Seed sample incidents
 INSERT INTO incidents (device_id, type, severity, status, description, detected_at, cleared_at) VALUES

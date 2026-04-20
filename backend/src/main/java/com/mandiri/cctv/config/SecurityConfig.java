@@ -61,7 +61,8 @@ public class SecurityConfig {
                 .requestMatchers("/api/v1/ingest/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/v1/dashboard/**", "/api/v1/incidents/**").authenticated()
                 .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
-                .anyRequest().authenticated()
+                .requestMatchers("/api/**").authenticated()
+                .anyRequest().permitAll()  // static files + SPA routes are public
             )
             .authenticationProvider(authenticationProvider())
             .addFilterBefore(jwtAuthFilter(), UsernamePasswordAuthenticationFilter.class)

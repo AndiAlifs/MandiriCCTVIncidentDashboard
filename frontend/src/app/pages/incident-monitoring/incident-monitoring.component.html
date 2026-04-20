@@ -188,7 +188,7 @@
                   <span>Waiting for Footage</span>
                 </div>
               } @else if (typeUi.videoSrc) {
-                <video class="footage-video" [src]="typeUi.videoSrc" autoplay muted loop playsinline></video>
+                <video class="footage-video" [src]="typeUi.videoSrc" muted preload="metadata" (loadedmetadata)="seekToThumbnail($event)"></video>
               } @else {
                 <div class="footage-placeholder">
                   <div class="footage-spinner"></div>

@@ -116,6 +116,10 @@ export class IncidentMonitoringComponent implements OnInit, OnDestroy {
     return this.activeAlerts.filter(a => a.typeUi.icon === typeUi.icon).length;
   }
 
+  seekToThumbnail(event: Event): void {
+    (event.target as HTMLVideoElement).currentTime = 0.5;
+  }
+
   elapsedDisplay(seconds: number): string {
     return seconds < 60 ? `${seconds}s ago` : `${Math.floor(seconds / 60)}m ${seconds % 60}s ago`;
   }

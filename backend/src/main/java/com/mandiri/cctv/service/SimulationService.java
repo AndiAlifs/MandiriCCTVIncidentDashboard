@@ -42,7 +42,7 @@ public class SimulationService {
             .type(type)
             .severity(Incident.Severity.HIGH)
             .status(Incident.Status.OPEN)
-            .description(descriptionFor(type))
+            .activity(descriptionFor(type))
             .detectedAt(now)
             .simulatedAt(now)
             .build();

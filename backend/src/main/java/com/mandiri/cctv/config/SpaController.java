@@ -10,14 +10,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class SpaController {
 
-    // Matches single-segment paths without a dot (e.g. /incident-monitoring)
-    @GetMapping("/{path:[^\\.]*}")
+    // Matches single-segment paths without a dot, excluding swagger-ui and v3 (api-docs)
+    @GetMapping("/{path:(?!swagger-ui)(?!v3)[^\\.]*}")
     public String spa() {
         return "forward:/index.html";
     }
 
-    // Matches multi-segment paths without a dot in the final segment (e.g. /admin/users)
-    @GetMapping("/{path:[^\\.]*}/**")
+    // Matches multi-segment paths without a dot in the first segment, excluding swagger-ui and v3
+    @GetMapping("/{path:(?!swagger-ui)(?!v3)[^\\.]*}/**")
     public String spaDeep() {
         return "forward:/index.html";
     }

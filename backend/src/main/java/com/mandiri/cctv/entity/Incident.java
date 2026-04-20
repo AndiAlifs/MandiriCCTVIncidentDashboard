@@ -38,7 +38,7 @@ public class Incident {
     private Status status = Status.OPEN;
 
     @Column(columnDefinition = "TEXT")
-    private String description;
+    private String activity;
 
     @Column(name = "evidence_url", length = 500)
     private String evidenceUrl;

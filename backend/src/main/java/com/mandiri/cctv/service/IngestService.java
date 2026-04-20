@@ -1,6 +1,7 @@
 package com.mandiri.cctv.service;
 
 import com.mandiri.cctv.dto.AlertRequest;
+import com.mandiri.cctv.dto.IncidentDto;
 import com.mandiri.cctv.dto.PingRequest;
 import com.mandiri.cctv.entity.Device;
 import com.mandiri.cctv.entity.Incident;
@@ -31,7 +32,7 @@ public class IngestService {
     }
 
     @Transactional
-    public Incident handleAlert(AlertRequest req) {
+    public IncidentDto handleAlert(AlertRequest req) {
         Device device = deviceRepository.findById(req.deviceId())
             .orElseThrow(() -> new EntityNotFoundException("Device not found: " + req.deviceId()));
 
@@ -40,11 +41,11 @@ public class IngestService {
             .type(req.type())
             .severity(req.severity() != null ? req.severity() : Incident.Severity.MEDIUM)
             .status(Incident.Status.OPEN)
-            .description(req.description())
+            .activity(req.activity())
             .evidenceUrl(req.evidenceUrl())
             .detectedAt(Instant.now())
             .build();
 
-        return incidentRepository.save(incident);
+        return IncidentDto.from(incidentRepository.save(incident));
     }
 }

@@ -7,6 +7,6 @@ public record AlertRequest(
     @NotNull Long deviceId,
     @NotNull Incident.Type type,
     Incident.Severity severity,
-    String description,
+    String activity,
     String evidenceUrl
 ) {}

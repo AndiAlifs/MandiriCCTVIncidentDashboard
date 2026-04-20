@@ -14,7 +14,7 @@ public record IncidentDto(
     Incident.Type type,
     Incident.Severity severity,
     Incident.Status status,
-    String description,
+    String activity,
     String evidenceUrl,
     Instant detectedAt,
     Instant clearedAt
@@ -32,7 +32,7 @@ public record IncidentDto(
             i.getType(),
             i.getSeverity(),
             i.getStatus(),
-            i.getDescription(),
+            i.getActivity(),
             i.getEvidenceUrl(),
             i.getDetectedAt(),
             i.getClearedAt()

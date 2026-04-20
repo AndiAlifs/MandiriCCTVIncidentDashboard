@@ -10,6 +10,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,8 +42,12 @@ public class IncidentService {
             Instant from,
             Instant to,
             Pageable pageable) {
-        return incidentRepository.findFiltered(status, type, from, to, pageable)
-            .map(IncidentDto::from);
+        Specification<Incident> spec = Specification.where(null);
+        if (status != null) spec = spec.and((r, q, cb) -> cb.equal(r.get("status"), status));
+        if (type   != null) spec = spec.and((r, q, cb) -> cb.equal(r.get("type"), type));
+        if (from   != null) spec = spec.and((r, q, cb) -> cb.greaterThanOrEqualTo(r.get("detectedAt"), from));
+        if (to     != null) spec = spec.and((r, q, cb) -> cb.lessThanOrEqualTo(r.get("detectedAt"), to));
+        return incidentRepository.findAll(spec, pageable).map(IncidentDto::from);
     }
 
     @Transactional(readOnly = true)

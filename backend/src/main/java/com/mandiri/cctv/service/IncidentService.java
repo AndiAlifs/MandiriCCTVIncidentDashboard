@@ -16,6 +16,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -41,6 +43,7 @@ public class IncidentService {
     private final IncidentRepository incidentRepository;
     private final IncidentCameraRepository incidentCameraRepository;
     private final DeviceRepository deviceRepository;
+    private final SseEmitterService sseEmitterService;
 
     @Transactional(readOnly = true)
     public Page<IncidentDto> findAll(
@@ -122,7 +125,14 @@ public class IncidentService {
         if (incident.getClearedAt() == null) {
             incident.setClearedAt(Instant.now());
         }
-        return IncidentDto.from(incidentRepository.save(incident), frontendBaseUrl);
+        IncidentDto dto = IncidentDto.from(incidentRepository.save(incident), frontendBaseUrl);
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                sseEmitterService.broadcast("INCIDENT_CLEARED", dto);
+            }
+        });
+        return dto;
     }
 
     private String formatElapsed(Duration d) {

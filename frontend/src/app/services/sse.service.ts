@@ -16,6 +16,7 @@ export class SseService {
       const es = new EventSource(`${this.base}/events?token=${token}`);
 
       es.addEventListener('INCIDENT_CREATED', (e: MessageEvent) => observer.next(e));
+      es.addEventListener('INCIDENT_CLEARED', (e: MessageEvent) => observer.next(e));
 
       es.onerror = () => {
         // Browser will auto-reconnect; only complete on explicit teardown

@@ -155,8 +155,9 @@
               }
             </span>
             <span class="incident-type-name">{{ typeUi.name }}</span>
-            @if (isTypeActive(typeUi.icon)) {
-              <span class="incident-alert-count">1</span>
+            @let count = overviewCount(typeUi);
+            @if (count > 0) {
+              <span class="incident-alert-count">{{ count }}</span>
             }
             <span class="incident-active-dot" [class.incident-active-dot--alert]="isTypeActive(typeUi.icon)"></span>
           </div>
@@ -167,26 +168,32 @@
       </div>
     </div>
 
-    <!-- Recent Incident Card (alert state) -->
-    @if (activeAlerts.length > 0) {
+    <!-- Recent Incident Card -->
+    @if (recentOpenIncidents.length > 0) {
       <div class="card">
         <h2 class="card-title">Recent Incident</h2>
         <div class="recent-incidents-row">
-          @for (alert of activeAlerts; track alert.typeUi.icon) {
-            <div class="recent-incident-col" (click)="navigateToAlertDetail(alert, $event)" style="cursor:pointer">
+          @for (incident of recentOpenIncidents; track incident.id) {
+            @let alertState = getAlertState(incident.id);
+            @let typeUi = getTypeUi(incident.type);
+            <div class="recent-incident-col" (click)="navigateToIncident(incident.id, $event)" style="cursor:pointer">
               <div class="recent-incident-chip">
-                <span class="recent-incident-title">{{ alert.typeUi.name }}</span>
-                <span class="recent-incident-branch">{{ alert.incident.branchName }} | {{ alert.incident.deviceLocation }}</span>
-                <span class="recent-incident-elapsed">Detected {{ elapsedDisplay(alert.elapsedSeconds) }}</span>
+                <span class="recent-incident-title">{{ typeUi.name }}</span>
+                <span class="recent-incident-branch">{{ incident.branch }} | {{ incident.area }}</span>
+                <span class="recent-incident-elapsed">Detected {{ alertState ? elapsedDisplay(alertState.elapsedSeconds) : incident.timeDetected }}</span>
               </div>
-              @if (!alert.footageReady || !alert.typeUi.videoSrc) {
+              @if (alertState && !alertState.footageReady) {
                 <div class="footage-placeholder">
                   <div class="footage-spinner"></div>
                   <span>Waiting for Footage</span>
                 </div>
-              }
-              @if (alert.footageReady && alert.typeUi.videoSrc) {
-                <video class="footage-video" [src]="alert.typeUi.videoSrc" autoplay muted loop playsinline></video>
+              } @else if (typeUi.videoSrc) {
+                <video class="footage-video" [src]="typeUi.videoSrc" autoplay muted loop playsinline></video>
+              } @else {
+                <div class="footage-placeholder">
+                  <div class="footage-spinner"></div>
+                  <span>Waiting for Footage</span>
+                </div>
               }
             </div>
           }

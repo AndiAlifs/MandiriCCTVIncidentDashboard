@@ -2,9 +2,12 @@ import { Component, HostListener, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { ApiService } from '../../services/api.service';
+import { SseService } from '../../services/sse.service';
 import { Incident } from '../../models/incident.model';
 import { INCIDENT_TYPE_UI, IncidentTypeUi } from '../../data/incident-types.data';
+import { IncidentType } from '../../models/incident.model';
 import { IncidentView, generateMonths, toIncidentView } from '../../services/incident-view.adapter';
 
 interface ActiveAlertState {
@@ -40,12 +43,15 @@ export class IncidentMonitoringComponent implements OnInit, OnDestroy {
 
   activeAlerts: ActiveAlertState[] = [];
 
-  constructor(private router: Router, private api: ApiService) {}
+  private sseSub?: Subscription;
+
+  constructor(private router: Router, private api: ApiService, private sse: SseService) {}
 
   ngOnInit(): void {
     const now = new Date();
     this.filterMonth = now.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
     this.loadIncidents();
+    this.sseSub = this.sse.incidents$().subscribe(() => this.loadIncidents());
   }
 
   private loadIncidents(): void {
@@ -79,8 +85,35 @@ export class IncidentMonitoringComponent implements OnInit, OnDestroy {
 
   // ── Alert simulation ─────────────────────────────────────────────────────────
 
+  get recentOpenIncidents(): IncidentView[] {
+    const cutoff = Date.now() - 30 * 60 * 1000;
+    return this.allIncidents.filter(i =>
+      !i.isCleared && new Date(i.detectedAtRaw).getTime() >= cutoff
+    );
+  }
+
+  private recentOpenCountForType(type: IncidentType): number {
+    return this.recentOpenIncidents.filter(i => i.type === type).length;
+  }
+
+  getAlertState(incidentId: number): ActiveAlertState | null {
+    return this.activeAlerts.find(a => a.incident.id === incidentId) ?? null;
+  }
+
+  getTypeUi(type: IncidentType): IncidentTypeUi {
+    return INCIDENT_TYPE_UI.find(t => t.type === type) ?? INCIDENT_TYPE_UI[0];
+  }
+
   isTypeActive(icon: string): boolean {
-    return this.activeAlerts.some(a => a.typeUi.icon === icon);
+    if (this.activeAlerts.some(a => a.typeUi.icon === icon)) return true;
+    const type = INCIDENT_TYPE_UI.find(t => t.icon === icon)?.type;
+    return type ? this.recentOpenCountForType(type) > 0 : false;
+  }
+
+  overviewCount(typeUi: IncidentTypeUi): number {
+    const fromReal = this.recentOpenCountForType(typeUi.type);
+    if (fromReal > 0) return fromReal;
+    return this.activeAlerts.filter(a => a.typeUi.icon === typeUi.icon).length;
   }
 
   elapsedDisplay(seconds: number): string {
@@ -138,6 +171,7 @@ export class IncidentMonitoringComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.clearAllAlerts();
+    this.sseSub?.unsubscribe();
   }
 
   // ── Derived option lists (cascade) ──────────────────────────────────────────

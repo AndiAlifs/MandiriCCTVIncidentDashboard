@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.time.Instant;
 import java.util.List;
@@ -26,6 +28,7 @@ public class SimulationService {
     private final DeviceRepository deviceRepository;
     private final IncidentRepository incidentRepository;
     private final HealthService healthService;
+    private final SseEmitterService sseEmitterService;
 
     private static final Map<Incident.Type, Long> TYPE_TO_DEVICE = Map.of(
         Incident.Type.FIRE_SMOKE,           7L,
@@ -51,7 +54,16 @@ public class SimulationService {
             .simulatedAt(now)
             .build();
 
-        return IncidentDto.from(incidentRepository.save(incident), frontendBaseUrl);
+        IncidentDto dto = IncidentDto.from(incidentRepository.save(incident), frontendBaseUrl);
+
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                sseEmitterService.broadcast("INCIDENT_CREATED", dto);
+            }
+        });
+
+        return dto;
     }
 
     @Transactional

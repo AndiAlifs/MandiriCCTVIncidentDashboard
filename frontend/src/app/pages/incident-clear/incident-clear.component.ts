@@ -19,6 +19,7 @@ export class IncidentClearComponent implements OnInit {
   error: string | null = null;
   clearing = false;
   cleared = false;
+  showConfirmModal = false;
 
   private token = '';
 
@@ -45,7 +46,17 @@ export class IncidentClearComponent implements OnInit {
     });
   }
 
-  markAsCleared(): void {
+  openConfirmModal(): void {
+    if (this.clearing || this.cleared) return;
+    this.showConfirmModal = true;
+  }
+
+  cancelClear(): void {
+    if (this.clearing) return;
+    this.showConfirmModal = false;
+  }
+
+  confirmClear(): void {
     if (this.clearing || this.cleared) return;
     this.clearing = true;
     this.api.clearIncidentByToken(this.token).subscribe({
@@ -53,9 +64,11 @@ export class IncidentClearComponent implements OnInit {
         this.incident = inc;
         this.cleared = true;
         this.clearing = false;
+        this.showConfirmModal = false;
       },
       error: () => {
         this.clearing = false;
+        this.showConfirmModal = false;
         this.error = 'Failed to clear incident. Please try again.';
       },
     });

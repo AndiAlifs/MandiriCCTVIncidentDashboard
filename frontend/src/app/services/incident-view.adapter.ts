@@ -50,6 +50,8 @@ export interface IncidentView {
   duration: string;
   month: string;
   type: IncidentType;
+  detectedAtRaw: string;
+  isCleared: boolean;
 }
 
 export function toIncidentView(i: Incident): IncidentView {
@@ -66,6 +68,8 @@ export function toIncidentView(i: Incident): IncidentView {
     duration: formatDuration(i.detectedAt, i.clearedAt),
     month: formatMonth(i.detectedAt),
     type: i.type,
+    detectedAtRaw: i.detectedAt,
+    isCleared: i.clearedAt !== null,
   };
 }
 

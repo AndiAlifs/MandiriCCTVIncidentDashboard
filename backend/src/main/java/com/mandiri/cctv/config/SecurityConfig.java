@@ -62,6 +62,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/v1/incidents").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/v1/devices/*/heartbeats").permitAll()
                 .requestMatchers("/api/v1/incidents/token/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/v1/events").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/v1/dashboard/**", "/api/v1/incidents/**", "/api/v1/health/**").authenticated()
                 .requestMatchers("/api/v1/simulate/**").authenticated()
                 .requestMatchers("/api/v1/admin/**").hasRole("ADMIN")
@@ -124,11 +125,17 @@ public class SecurityConfig {
                                             HttpServletResponse response,
                                             FilterChain chain) throws ServletException, IOException {
                 String authHeader = request.getHeader("Authorization");
-                if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+                String token;
+                if (authHeader != null && authHeader.startsWith("Bearer ")) {
+                    token = authHeader.substring(7);
+                } else if (request.getRequestURI().endsWith("/api/v1/events") &&
+                           request.getParameter("token") != null) {
+                    // EventSource API cannot send headers; accept token via query param for SSE only
+                    token = request.getParameter("token");
+                } else {
                     chain.doFilter(request, response);
                     return;
                 }
-                String token = authHeader.substring(7);
                 String username = jwtService.extractUsername(token);
                 if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                     UserDetails userDetails = userDetailsService().loadUserByUsername(username);

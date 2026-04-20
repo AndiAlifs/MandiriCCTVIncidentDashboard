@@ -14,6 +14,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.support.TransactionSynchronization;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.time.Instant;
 import java.util.List;
@@ -28,6 +30,7 @@ public class IngestService {
     private final DeviceRepository deviceRepository;
     private final IncidentRepository incidentRepository;
     private final IncidentCameraRepository incidentCameraRepository;
+    private final SseEmitterService sseEmitterService;
 
     @Transactional
     public void handlePing(PingRequest req) {
@@ -71,6 +74,15 @@ public class IngestService {
             incidentCameraRepository.saveAll(cameras);
         }
 
-        return IncidentDto.from(saved, frontendBaseUrl);
+        IncidentDto dto = IncidentDto.from(saved, frontendBaseUrl);
+
+        TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {
+            @Override
+            public void afterCommit() {
+                sseEmitterService.broadcast("INCIDENT_CREATED", dto);
+            }
+        });
+
+        return dto;
     }
 }

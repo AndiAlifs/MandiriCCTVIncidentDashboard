@@ -28,77 +28,122 @@
       </div>
     } @else {
 
-      <div class="card">
+      <div class="detail-layout">
 
-        <!-- Status banner -->
-        @if (cleared) {
-          <div class="status-banner banner--resolved">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            Incident cleared{{ timeCleared ? ' on ' + timeCleared : '' }}
+        <!-- Left Sidebar -->
+        <aside class="detail-sidebar">
+          <div class="incident-type-badge" [ngClass]="'badge--' + incidentType?.icon">
+            {{ incidentType?.name }}
           </div>
-        } @else {
-          <div class="status-banner banner--open">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"/>
-              <line x1="12" y1="8" x2="12" y2="12"/>
-              <line x1="12" y1="16" x2="12.01" y2="16"/>
-            </svg>
-            Active Incident
+          <div class="sidebar-body">
+            <div class="section-title">Incident Details</div>
+            <div class="fields">
+              <div class="field-row">
+                <span class="field-label">Branch</span>
+                <span class="field-value">{{ incident?.branchName }}</span>
+              </div>
+              <div class="field-row">
+                <span class="field-label">Location</span>
+                <span class="field-value">{{ incident?.deviceLocation }}</span>
+              </div>
+              <div class="field-row">
+                <span class="field-label">Activity</span>
+                <span class="field-value">{{ incident?.activity }}</span>
+              </div>
+              <div class="field-row">
+                <span class="field-label">Detected At</span>
+                <span class="field-value">{{ timeDetected }}</span>
+              </div>
+              <div class="field-row last">
+                <span class="field-label">Severity</span>
+                <span class="field-value severity" [ngClass]="'sev--' + incident?.severity?.toLowerCase()">
+                  {{ incident?.severity }}
+                </span>
+              </div>
+            </div>
           </div>
-        }
+        </aside>
 
-        <!-- Incident type badge -->
-        <div class="incident-type-badge" [ngClass]="'badge--' + incidentType?.icon">
-          {{ incidentType?.name }}
-        </div>
+        <!-- Action Panel -->
+        <div class="action-panel">
 
-        <!-- Detail fields -->
-        <div class="fields">
-          <div class="field-row">
-            <span class="field-label">Branch</span>
-            <span class="field-value">{{ incident?.branchName }}</span>
-          </div>
-          <div class="field-row">
-            <span class="field-label">Location</span>
-            <span class="field-value">{{ incident?.deviceLocation }}</span>
-          </div>
-          <div class="field-row">
-            <span class="field-label">Activity</span>
-            <span class="field-value">{{ incident?.activity }}</span>
-          </div>
-          <div class="field-row">
-            <span class="field-label">Detected At</span>
-            <span class="field-value">{{ timeDetected }}</span>
-          </div>
-          <div class="field-row">
-            <span class="field-label">Severity</span>
-            <span class="field-value severity" [ngClass]="'sev--' + incident?.severity?.toLowerCase()">
-              {{ incident?.severity }}
-            </span>
-          </div>
-        </div>
-
-        <!-- Action -->
-        @if (!cleared) {
-          <button class="clear-btn" [disabled]="clearing" (click)="markAsCleared()">
-            @if (clearing) {
-              <div class="btn-spinner"></div>
-              Clearing...
+          <!-- Video -->
+          <div class="video-wrapper">
+            @if (incidentType?.videoSrc) {
+              <video [src]="incidentType!.videoSrc" autoplay muted loop playsinline class="main-video"></video>
+              <div class="detection-banner">
+                <svg class="detection-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M19 12A7 7 0 005 12c0 3.9 3.1 7 7 7s7-3.1 7-7zM3 12a9 9 0 1118 0A9 9 0 013 12zm9-4a1 1 0 011 1v3l1.5 1.5a1 1 0 01-1.4 1.4l-2-2A1 1 0 0110 13v-4a1 1 0 011-1z"/><path d="M12 2a1 1 0 011 1v1a1 1 0 01-2 0V3a1 1 0 011-1zM4.22 4.22a1 1 0 011.42 0l.7.7a1 1 0 01-1.42 1.42l-.7-.7a1 1 0 010-1.42zM2 12a1 1 0 011-1h1a1 1 0 010 2H3a1 1 0 01-1-1zm17-1h1a1 1 0 010 2h-1a1 1 0 010-2zm-2.34-6.07a1 1 0 010 1.41l-.7.7a1 1 0 01-1.42-1.41l.71-.7a1 1 0 011.41 0z"/></svg>
+                {{ incidentType?.name }}
+              </div>
+              <div class="bounding-box"></div>
+              <div class="video-timestamp">{{ timeDetected }}</div>
             } @else {
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              Mark as Cleared
+              <div class="footage-placeholder">
+                <div class="footage-spinner"></div>
+                <span>Waiting for Footage</span>
+              </div>
             }
-          </button>
-        }
+          </div>
+
+          <!-- Action bar -->
+          <div class="action-bar">
+            @if (cleared) {
+              <div class="status-banner banner--resolved">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Incident cleared{{ timeCleared ? ' on ' + timeCleared : '' }}
+              </div>
+            } @else {
+              <div class="status-banner banner--open">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/>
+                  <line x1="12" y1="8" x2="12" y2="12"/>
+                  <line x1="12" y1="16" x2="12.01" y2="16"/>
+                </svg>
+                Active Incident
+              </div>
+              <button class="clear-btn" (click)="openConfirmModal()">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Mark as Cleared
+              </button>
+            }
+          </div>
+
+        </div>
 
       </div>
 
     }
 
   </main>
+
+  <!-- Confirmation Modal -->
+  @if (showConfirmModal) {
+    <div class="modal-overlay" (click)="cancelClear()">
+      <div class="modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <svg class="modal-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M20 6L9 17l-5-5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span class="modal-title">Confirm Clearance</span>
+        </div>
+        <p class="modal-body">Are you sure you want to mark this incident as cleared? This action cannot be undone.</p>
+        <div class="modal-actions">
+          <button class="btn-cancel" (click)="cancelClear()" [disabled]="clearing">Cancel</button>
+          <button class="btn-confirm" (click)="confirmClear()" [disabled]="clearing">
+            @if (clearing) {
+              <div class="btn-spinner"></div>
+              Clearing...
+            } @else {
+              Confirm
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
 
 </div>

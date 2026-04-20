@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: dev   # override with -Dspring.profiles.active=staging|prod
+    active: stag   # override with -Dspring.profiles.active=staging|prod
   jpa:
     hibernate:
       ddl-auto: validate

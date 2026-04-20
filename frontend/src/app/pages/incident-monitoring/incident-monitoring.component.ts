@@ -37,6 +37,12 @@ export class IncidentMonitoringComponent implements OnDestroy {
 
   // ── Navigation ───────────────────────────────────────────────────────────────
 
+  navigateTo(path: string, event?: Event): void {
+    event?.stopPropagation();
+    this.openDropdown = null;
+    this.router.navigate([path]);
+  }
+
   navigateToIncident(incidentId: number, event?: Event): void {
     event?.stopPropagation();
     this.router.navigate(['/incident-detail', incidentId]);

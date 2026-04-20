@@ -19,6 +19,11 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'cctv-health-monitoring',
+    loadComponent: () => import('./pages/cctv-health-monitoring/cctv-health-monitoring.component').then(m => m.CctvHealthMonitoringComponent),
+    canActivate: [authGuard],
+  },
+  {
     path: 'cctv-availability',
     loadComponent: () => import('./pages/cctv-availability/cctv-availability.component').then(m => m.CctvAvailabilityComponent),
     canActivate: [authGuard],

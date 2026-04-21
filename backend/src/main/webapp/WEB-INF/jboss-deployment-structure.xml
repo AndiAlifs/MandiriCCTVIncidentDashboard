@@ -2,24 +2,41 @@
 <!--
   Prevents JBoss/WildFly's built-in module versions from conflicting with
   the libraries bundled inside this WAR (Spring Boot, Hibernate, Jackson, etc.).
+  Spring Boot runs with its own classloader isolation; JBoss subsystems are disabled.
 -->
 <jboss-deployment-structure>
   <deployment>
+    <!-- Exclude modules that conflict with Spring Boot bundled versions -->
     <exclusions>
       <module name="org.springframework" />
       <module name="org.springframework.core" />
+      <module name="org.springframework.beans" />
+      <module name="org.springframework.context" />
+      <module name="org.springframework.boot" />
+      <!-- Exclude ALL Hibernate versions to prevent classloader conflicts -->
       <module name="org.hibernate" />
       <module name="org.hibernate.core" />
+      <module name="org.hibernate.orm" />
+      <module name="org.hibernate.orm.core" />
       <module name="org.hibernate.validator" />
+      <!-- Exclude Jackson -->
       <module name="com.fasterxml.jackson.core.jackson-core" />
       <module name="com.fasterxml.jackson.core.jackson-databind" />
       <module name="com.fasterxml.jackson.core.jackson-annotations" />
+      <!-- Exclude Logging -->
       <module name="org.slf4j" />
+      <module name="org.slf4j.impl" />
       <module name="ch.qos.logback" />
       <module name="org.apache.log4j" />
+      <!-- Exclude Jakarta APIs to use Spring Boot's bundled versions -->
       <module name="jakarta.persistence.api" />
+      <module name="jakarta.persistence" />
       <module name="jakarta.validation.api" />
       <module name="jakarta.transaction.api" />
     </exclusions>
+    <!-- Disable JBoss's JPA subsystem entirely; Spring Boot handles JPA -->
+    <exclude-subsystems>
+      <subsystem name="jpa" />
+    </exclude-subsystems>
   </deployment>
 </jboss-deployment-structure>

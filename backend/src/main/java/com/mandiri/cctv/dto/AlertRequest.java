@@ -15,6 +15,9 @@ public record AlertRequest(
     @Schema(description = "Branch name where the incident occurred", example = "KCU Sudirman", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank String branchName,
 
+    @Schema(description = "Branch code identifier", example = "KCU001", requiredMode = Schema.RequiredMode.NOT_REQUIRED)
+    String branchCode,
+
     @Schema(description = "Camera name that detected the incident", example = "CAM-ATM-01", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotBlank String cameraName,
 

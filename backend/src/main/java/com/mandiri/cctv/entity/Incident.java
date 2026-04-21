@@ -30,6 +30,9 @@ public class Incident {
     @Column(name = "branch_name", length = 255)
     private String branchName;
 
+    @Column(name = "branch_code", length = 50)
+    private String branchCode;
+
     @Column(name = "camera_name", length = 255)
     private String cameraName;
 

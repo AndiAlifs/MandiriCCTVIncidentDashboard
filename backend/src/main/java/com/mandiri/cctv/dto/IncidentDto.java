@@ -18,6 +18,9 @@ public record IncidentDto(
     @Schema(description = "Branch name where the incident occurred", example = "KCU Sudirman")
     String branchName,
 
+    @Schema(description = "Branch code identifier", example = "KCU001")
+    String branchCode,
+
     @Schema(description = "Region of the branch", example = "DKI Jakarta")
     String region,
 
@@ -58,6 +61,7 @@ public record IncidentDto(
             i.getIpAddress(),
             i.getCameraName(),
             i.getBranchName(),
+            i.getBranchCode(),
             i.getRegion(),
             i.getAreaGroup(),
             i.getType(),

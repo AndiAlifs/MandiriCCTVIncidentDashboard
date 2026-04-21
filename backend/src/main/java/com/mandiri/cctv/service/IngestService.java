@@ -69,6 +69,7 @@ public class IngestService {
         Incident incident = Incident.builder()
             .ipAddress(req.ipAddress())
             .branchName(req.branchName())
+            .branchCode(req.branchCode())
             .cameraName(req.cameraName())
             .region(req.region())
             .areaGroup(req.areaGroup())

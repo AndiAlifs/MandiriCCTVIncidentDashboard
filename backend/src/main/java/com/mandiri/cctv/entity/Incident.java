@@ -24,9 +24,20 @@ public class Incident {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "device_id", nullable = false)
-    private Device device;
+    @Column(name = "ip_address", length = 50)
+    private String ipAddress;
+
+    @Column(name = "branch_name", length = 255)
+    private String branchName;
+
+    @Column(name = "camera_name", length = 255)
+    private String cameraName;
+
+    @Column(length = 100)
+    private String region;
+
+    @Column(name = "area_group", length = 100)
+    private String areaGroup;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)

@@ -43,9 +43,14 @@ public class SimulationService {
         Device device = deviceRepository.findById(deviceId)
             .orElseThrow(() -> new EntityNotFoundException("Device not found: " + deviceId));
 
+        var branch = device.getBranch();
         Instant now = Instant.now();
         Incident incident = Incident.builder()
-            .device(device)
+            .ipAddress(device.getIpAddress())
+            .branchName(branch.getName())
+            .cameraName(device.getLocation())
+            .region(branch.getRegion())
+            .areaGroup(branch.getAreaGroup())
             .type(type)
             .severity(Incident.Severity.HIGH)
             .status(Incident.Status.OPEN)
@@ -70,7 +75,6 @@ public class SimulationService {
     public HealthSummary simulateHealthState(String state) {
         Instant now = Instant.now();
 
-        // Reset previous simulation
         deviceRepository.findSimulated().forEach(d -> {
             d.setStatus(Device.Status.ONLINE);
             d.setSimulatedAt(null);
@@ -84,7 +88,6 @@ public class SimulationService {
         List<Device> targets = deviceRepository.findOfflineCctvForSimulation();
         int targetCount = "alert".equals(state) ? 2 : Math.min(14, targets.size());
 
-        // For alert/incident: mark N additional devices offline (already offline in seed, just tag them)
         targets.stream().limit(targetCount).forEach(d -> d.setSimulatedAt(now));
         deviceRepository.flush();
 

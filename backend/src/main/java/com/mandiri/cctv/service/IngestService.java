@@ -44,36 +44,43 @@ public class IngestService {
 
     @Transactional
     public IncidentDto handleAlert(AlertRequest req) {
-        Device device = deviceRepository.findById(req.deviceId())
-            .orElseThrow(() -> new EntityNotFoundException("Device not found: " + req.deviceId()));
+        List<Incident> ongoing = incidentRepository.findOngoingByTypeAndBranch(req.type(), req.branchName());
 
+        // If there is an ongoing incident of the same type at the same branch
+        // and the incoming alert is from a different camera, add it as other-camera
+        if (!ongoing.isEmpty()) {
+            Incident existing = ongoing.get(0);
+            boolean sameCamera = req.ipAddress().equals(existing.getIpAddress())
+                && req.cameraName().equals(existing.getCameraName());
+
+            if (!sameCamera) {
+                IncidentCamera cam = IncidentCamera.builder()
+                    .incident(existing)
+                    .ipAddress(req.ipAddress())
+                    .cameraName(req.cameraName())
+                    .url(req.evidenceUrl())
+                    .build();
+                incidentCameraRepository.save(cam);
+                return IncidentDto.from(existing, frontendBaseUrl);
+            }
+        }
+
+        // No ongoing incident (or same camera) — create a new incident
         Incident incident = Incident.builder()
-            .device(device)
+            .ipAddress(req.ipAddress())
+            .branchName(req.branchName())
+            .cameraName(req.cameraName())
+            .region(req.region())
+            .areaGroup(req.areaGroup())
             .type(req.type())
-            .severity(req.severity() != null ? req.severity() : Incident.Severity.MEDIUM)
+            .severity(Incident.Severity.MEDIUM)
             .status(Incident.Status.OPEN)
             .activity(req.activity())
             .evidenceUrl(req.evidenceUrl())
-            .detectedAt(Instant.now())
+            .detectedAt(req.time() != null ? req.time() : Instant.now())
             .build();
 
         Incident saved = incidentRepository.save(incident);
-
-        if (req.otherCameras() != null) {
-            List<IncidentCamera> cameras = req.otherCameras().stream()
-                .map(entry -> {
-                    Device cam = deviceRepository.findById(entry.deviceId())
-                        .orElseThrow(() -> new EntityNotFoundException("Device not found: " + entry.deviceId()));
-                    return IncidentCamera.builder()
-                        .incident(saved)
-                        .device(cam)
-                        .url(entry.url())
-                        .build();
-                })
-                .toList();
-            incidentCameraRepository.saveAll(cameras);
-        }
-
         IncidentDto dto = IncidentDto.from(saved, frontendBaseUrl);
 
         TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronization() {

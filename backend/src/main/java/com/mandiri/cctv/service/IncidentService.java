@@ -2,10 +2,8 @@ package com.mandiri.cctv.service;
 
 import com.mandiri.cctv.dto.IncidentDto;
 import com.mandiri.cctv.dto.OtherCameraDto;
-import com.mandiri.cctv.entity.Device;
 import com.mandiri.cctv.entity.Incident;
 import com.mandiri.cctv.entity.IncidentCamera;
-import com.mandiri.cctv.repository.DeviceRepository;
 import com.mandiri.cctv.repository.IncidentCameraRepository;
 import com.mandiri.cctv.repository.IncidentRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -42,7 +40,6 @@ public class IncidentService {
 
     private final IncidentRepository incidentRepository;
     private final IncidentCameraRepository incidentCameraRepository;
-    private final DeviceRepository deviceRepository;
     private final SseEmitterService sseEmitterService;
 
     @Transactional(readOnly = true)
@@ -78,23 +75,10 @@ public class IncidentService {
         String elapsed = formatElapsed(Duration.between(detectedAt, now));
 
         List<IncidentCamera> stored = incidentCameraRepository.findByIncidentId(incidentId);
-        if (!stored.isEmpty()) {
-            return stored.stream()
-                .map(ic -> {
-                    Device d = ic.getDevice();
-                    return new OtherCameraDto(d.getId(), d.getLocation(), d.getIpAddress(), timestamp, elapsed, ic.getUrl());
-                })
-                .toList();
-        }
-
-        // fall back: other cameras in the same branch
-        Device incidentDevice = incident.getDevice();
-        Long branchId = incidentDevice.getBranch().getId();
-        return deviceRepository.findOtherCamerasInBranch(branchId, incidentDevice.getId())
-            .stream()
-            .map(d -> {
-                String videoSrc = VIDEO_POOL.get((int) (d.getId() % VIDEO_POOL.size()));
-                return new OtherCameraDto(d.getId(), d.getLocation(), d.getIpAddress(), timestamp, elapsed, videoSrc);
+        return stored.stream()
+            .map(ic -> {
+                String videoSrc = VIDEO_POOL.get((int) (ic.getId() % VIDEO_POOL.size()));
+                return new OtherCameraDto(ic.getId(), ic.getCameraName(), ic.getIpAddress(), timestamp, elapsed, videoSrc);
             })
             .toList();
     }

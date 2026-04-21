@@ -187,6 +187,8 @@
                   <div class="footage-spinner"></div>
                   <span>Waiting for Footage</span>
                 </div>
+              } @else if (incident.evidenceUrl) {
+                <img class="footage-snapshot" [src]="incident.evidenceUrl" alt="Evidence snapshot" />
               } @else if (typeUi.videoSrc) {
                 <video class="footage-video" [src]="typeUi.videoSrc" muted preload="metadata" (loadedmetadata)="seekToThumbnail($event)"></video>
               } @else {

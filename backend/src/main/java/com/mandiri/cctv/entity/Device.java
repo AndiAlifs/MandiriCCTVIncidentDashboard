@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.Instant;
-import java.util.List;
 
 @Entity
 @Table(name = "devices")
@@ -44,6 +43,4 @@ public class Device {
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt = Instant.now();
 
-    @OneToMany(mappedBy = "device", fetch = FetchType.LAZY)
-    private List<Incident> incidents;
 }

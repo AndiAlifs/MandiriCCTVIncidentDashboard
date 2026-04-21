@@ -582,6 +582,14 @@ $green-dot:     #22C55E;
   display: block;
 }
 
+.footage-snapshot {
+  width: 100%;
+  max-height: 164px;
+  border-radius: 10px;
+  object-fit: cover;
+  display: block;
+}
+
 @keyframes spin {
   to { transform: rotate(360deg); }
 }

@@ -8,7 +8,7 @@
           <path d="M10 3L5 8l5 5"/>
         </svg>
       </button>
-      <span class="topnav-breadcrumb">{{ incident?.branchName }} | {{ incident?.deviceLocation }}</span>
+      <span class="topnav-breadcrumb">{{ incident?.branchName }} | {{ incident?.cameraName }}</span>
     </div>
     <span class="topnav-pic">PIC: <strong>Ari Dzar Ramadhani</strong></span>
   </header>
@@ -35,7 +35,7 @@
             <div class="detail-fields">
               <div class="detail-row">
                 <span class="field-label">Area</span>
-                <span class="field-value">{{ incident?.deviceLocation }}</span>
+                <span class="field-value">{{ incident?.cameraName }}</span>
               </div>
               <div class="detail-row">
                 <span class="field-label">Activity</span>
@@ -50,6 +50,12 @@
                 <span class="field-value">{{ duration }}</span>
               </div>
             </div>
+            @if (incident?.evidenceUrl) {
+              <div class="evidence-section">
+                <div class="detail-section-title">Evidence Snapshot</div>
+                <img class="evidence-img" [src]="incident!.evidenceUrl!" alt="Evidence snapshot" />
+              </div>
+            }
           </div>
         </aside>
 
@@ -87,6 +93,8 @@
                 </div>
               }
 
+            } @else if (incident?.evidenceUrl) {
+              <img class="evidence-full" [src]="incident!.evidenceUrl!" alt="Evidence snapshot" />
             } @else {
               <div class="footage-placeholder">
                 <div class="footage-spinner"></div>

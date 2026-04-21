@@ -52,6 +52,7 @@ export interface IncidentView {
   type: IncidentType;
   detectedAtRaw: string;
   isCleared: boolean;
+  evidenceUrl: string | null;
 }
 
 export function toIncidentView(i: Incident): IncidentView {
@@ -60,7 +61,7 @@ export function toIncidentView(i: Incident): IncidentView {
     region: i.region,
     areaGroup: i.areaGroup,
     branch: i.branchName,
-    area: i.deviceLocation,
+    area: i.cameraName ?? '',
     indication: TYPE_LABEL[i.type],
     activity: TYPE_ACTIVITY[i.type],
     timeDetected: formatWib(i.detectedAt),
@@ -70,6 +71,7 @@ export function toIncidentView(i: Incident): IncidentView {
     type: i.type,
     detectedAtRaw: i.detectedAt,
     isCleared: i.clearedAt !== null,
+    evidenceUrl: i.evidenceUrl,
   };
 }
 

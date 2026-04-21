@@ -15,9 +15,11 @@ public class IncidentCamera {
     @JoinColumn(name = "incident_id", nullable = false)
     private Incident incident;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "device_id", nullable = false)
-    private Device device;
+    @Column(name = "ip_address", length = 50)
+    private String ipAddress;
+
+    @Column(name = "camera_name", length = 255)
+    private String cameraName;
 
     @Column(length = 500)
     private String url;

@@ -173,6 +173,21 @@ $border-subtle: rgba(255, 255, 255, 0.1);
   line-height: 1.4;
 }
 
+// ─── Evidence Snapshot (sidebar) ─────────────────────────────────────────────
+.evidence-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.evidence-img {
+  width: 100%;
+  border-radius: 8px;
+  object-fit: cover;
+  display: block;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
 // ─── Video Panel ──────────────────────────────────────────────────────────────
 .video-panel {
   flex: 1;
@@ -201,6 +216,14 @@ $border-subtle: rgba(255, 255, 255, 0.1);
   height: 100%;
   object-fit: cover;
   display: block;
+}
+
+.evidence-full {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+  background: #000;
 }
 
 // ─── Detection Overlays ───────────────────────────────────────────────────────

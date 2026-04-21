@@ -9,8 +9,8 @@ export type IncidentStatus   = 'OPEN' | 'IN_PROGRESS' | 'RESOLVED';
 
 export interface Incident {
   id: number;
-  deviceId: number;
-  deviceLocation: string;
+  ipAddress: string | null;
+  cameraName: string | null;
   branchName: string;
   region: string;
   areaGroup: string;

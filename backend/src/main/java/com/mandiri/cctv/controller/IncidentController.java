@@ -7,6 +7,9 @@ import com.mandiri.cctv.entity.Incident;
 import com.mandiri.cctv.service.IngestService;
 import com.mandiri.cctv.service.IncidentService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -32,8 +35,12 @@ public class IncidentController {
     private final IngestService ingestService;
 
     @Operation(summary = "Report a new incident alert", description = "Receives an alert from a CCTV device. If an ongoing incident of the same type already exists at the same branch from a different camera, the camera is added as a secondary source instead of creating a new incident.")
+    @RequestBody(required = true, content = @Content(
+        mediaType = "application/json",
+        schema = @Schema(implementation = AlertRequest.class)
+    ))
     @PostMapping
-    public ResponseEntity<IncidentDto> create(@Valid @RequestBody AlertRequest req) {
+    public ResponseEntity<IncidentDto> create(@Valid @org.springframework.web.bind.annotation.RequestBody AlertRequest req) {
         return ResponseEntity.status(HttpStatus.CREATED).body(ingestService.handleAlert(req));
     }
 

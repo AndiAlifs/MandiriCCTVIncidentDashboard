@@ -3,6 +3,9 @@ package com.mandiri.cctv.controller;
 import com.mandiri.cctv.dto.AuthDto;
 import com.mandiri.cctv.service.JwtService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,8 +27,12 @@ public class AuthController {
     private final JwtService jwtService;
 
     @Operation(summary = "Login", description = "Authenticate with username and password and receive a JWT bearer token")
+    @RequestBody(required = true, content = @Content(
+        mediaType = "application/json",
+        schema = @Schema(implementation = AuthDto.LoginRequest.class)
+    ))
     @PostMapping("/login")
-    public ResponseEntity<AuthDto.TokenResponse> login(@Valid @RequestBody AuthDto.LoginRequest req) {
+    public ResponseEntity<AuthDto.TokenResponse> login(@Valid @org.springframework.web.bind.annotation.RequestBody AuthDto.LoginRequest req) {
         authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(req.username(), req.password())
         );

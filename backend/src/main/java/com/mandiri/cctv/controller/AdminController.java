@@ -3,6 +3,9 @@ package com.mandiri.cctv.controller;
 import com.mandiri.cctv.dto.DeviceDto;
 import com.mandiri.cctv.service.AdminDeviceService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -35,16 +38,24 @@ public class AdminController {
     }
 
     @Operation(summary = "Create a device", description = "Registers a new NVR or CCTV device and assigns it to a branch", deprecated = true)
+    @RequestBody(required = true, content = @Content(
+        mediaType = "application/json",
+        schema = @Schema(implementation = DeviceDto.CreateRequest.class)
+    ))
     @PostMapping("/devices")
-    public ResponseEntity<DeviceDto> createDevice(@Valid @RequestBody DeviceDto.CreateRequest req) {
+    public ResponseEntity<DeviceDto> createDevice(@Valid @org.springframework.web.bind.annotation.RequestBody DeviceDto.CreateRequest req) {
         return ResponseEntity.status(HttpStatus.CREATED).body(adminDeviceService.create(req));
     }
 
     @Operation(summary = "Update a device", description = "Updates the branch assignment, location, IP address, device type, or status of an existing device", deprecated = true)
+    @RequestBody(required = true, content = @Content(
+        mediaType = "application/json",
+        schema = @Schema(implementation = DeviceDto.UpdateRequest.class)
+    ))
     @PutMapping("/devices/{deviceId}")
     public ResponseEntity<DeviceDto> updateDevice(
             @PathVariable Long deviceId,
-            @Valid @RequestBody DeviceDto.UpdateRequest req) {
+            @Valid @org.springframework.web.bind.annotation.RequestBody DeviceDto.UpdateRequest req) {
         return ResponseEntity.ok(adminDeviceService.update(deviceId, req));
     }
 

@@ -1,0 +1,13 @@
+spring:
+  datasource:
+    # JBoss/WildFly manages the Oracle connection pool.
+    # Ensure the datasource is registered in standalone.xml before deploying.
+    jndi-name: java:jboss/datasources/MandiriCCTVDS
+  jpa:
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.OracleDialect
+
+server:
+  port: ${PORT:8080}

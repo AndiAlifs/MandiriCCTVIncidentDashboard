@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Oracle JDBC module descriptor for JBoss/WildFly.
+
+  INSTALLATION STEPS (run once on each JBoss node):
+  1. Copy ojdbc11.jar (or ojdbc8.jar) to:
+       $JBOSS_HOME/modules/com/oracle/database/jdbc/main/
+  2. Save this file as:
+       $JBOSS_HOME/modules/com/oracle/database/jdbc/main/module.xml
+  3. Restart JBoss.
+
+  Download ojdbc11: https://www.oracle.com/database/technologies/appdev/jdbc-downloads.html
+-->
+<module xmlns="urn:jboss:module:1.9" name="com.oracle.database.jdbc">
+  <resources>
+    <resource-root path="ojdbc11.jar"/>
+  </resources>
+  <dependencies>
+    <module name="javax.api"/>
+    <module name="javax.transaction.api"/>
+  </dependencies>
+</module>

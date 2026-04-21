@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Prevents JBoss/WildFly's built-in module versions from conflicting with
+  the libraries bundled inside this WAR (Spring Boot, Hibernate, Jackson, etc.).
+-->
+<jboss-deployment-structure>
+  <deployment>
+    <exclusions>
+      <module name="org.springframework" />
+      <module name="org.springframework.core" />
+      <module name="org.hibernate" />
+      <module name="org.hibernate.core" />
+      <module name="org.hibernate.validator" />
+      <module name="com.fasterxml.jackson.core.jackson-core" />
+      <module name="com.fasterxml.jackson.core.jackson-databind" />
+      <module name="com.fasterxml.jackson.core.jackson-annotations" />
+      <module name="org.slf4j" />
+      <module name="ch.qos.logback" />
+      <module name="org.apache.log4j" />
+      <module name="jakarta.persistence.api" />
+      <module name="jakarta.validation.api" />
+      <module name="jakarta.transaction.api" />
+    </exclusions>
+  </deployment>
+</jboss-deployment-structure>

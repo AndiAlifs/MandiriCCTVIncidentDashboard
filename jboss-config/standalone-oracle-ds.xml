@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Oracle datasource configuration snippet for JBoss/WildFly standalone.xml.
+
+  HOW TO APPLY:
+  Merge the <datasource> block below into the existing <datasources> subsystem
+  inside $JBOSS_HOME/standalone/configuration/standalone.xml:
+
+    <subsystem xmlns="urn:jboss:domain:datasources:X.X">
+      <datasources>
+        ... paste here ...
+      </datasources>
+    </subsystem>
+
+  REQUIRED ENVIRONMENT VARIABLES (set in standalone.conf or OS environment):
+    DB_HOST       – Oracle host, e.g. 192.168.1.10
+    DB_PORT       – Oracle listener port, default 1521
+    DB_SERVICE    – Oracle service name, e.g. MANDIRI_CCTV
+    DB_USERNAME   – Schema user, e.g. cctv_user
+    DB_PASSWORD   – Schema password
+
+  PREREQUISITE:
+    Oracle JDBC module must be installed first (see oracle-module.xml).
+-->
+
+<datasources>
+
+  <datasource jndi-name="java:jboss/datasources/MandiriCCTVDS"
+              pool-name="MandiriCCTVPool"
+              enabled="true"
+              use-java-context="true"
+              statistics-enabled="false">
+
+    <connection-url>jdbc:oracle:thin:@//${env.DB_HOST:localhost}:${env.DB_PORT:1521}/${env.DB_SERVICE:mandiri_cctv}</connection-url>
+
+    <driver>oracle</driver>
+
+    <pool>
+      <min-pool-size>5</min-pool-size>
+      <max-pool-size>20</max-pool-size>
+      <prefill>true</prefill>
+      <use-strict-min>false</use-strict-min>
+      <flush-strategy>FailingConnectionOnly</flush-strategy>
+    </pool>
+
+    <security>
+      <user-name>${env.DB_USERNAME:cctv_user}</user-name>
+      <password>${env.DB_PASSWORD}</password>
+    </security>
+
+    <validation>
+      <valid-connection-checker class-name="org.jboss.jca.adapters.jdbc.extensions.oracle.OracleValidConnectionChecker"/>
+      <background-validation>true</background-validation>
+      <background-validation-millis>60000</background-validation-millis>
+      <exception-sorter class-name="org.jboss.jca.adapters.jdbc.extensions.oracle.OracleExceptionSorter"/>
+    </validation>
+
+    <timeout>
+      <set-tx-query-timeout>true</set-tx-query-timeout>
+      <blocking-timeout-millis>5000</blocking-timeout-millis>
+      <idle-timeout-minutes>15</idle-timeout-minutes>
+    </timeout>
+
+    <statement>
+      <prepared-statement-cache-size>32</prepared-statement-cache-size>
+      <share-prepared-statements>true</share-prepared-statements>
+    </statement>
+
+  </datasource>
+
+  <drivers>
+    <driver name="oracle" module="com.oracle.database.jdbc">
+      <driver-class>oracle.jdbc.OracleDriver</driver-class>
+      <xa-datasource-class>oracle.jdbc.xa.client.OracleXADataSource</xa-datasource-class>
+    </driver>
+  </drivers>
+
+</datasources>

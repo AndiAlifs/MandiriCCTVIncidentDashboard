@@ -35,6 +35,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import io.jsonwebtoken.JwtException;
 import java.io.IOException;
 import java.util.List;
 
@@ -136,16 +137,23 @@ public class SecurityConfig {
                     chain.doFilter(request, response);
                     return;
                 }
-                String username = jwtService.extractUsername(token);
-                if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-                    UserDetails userDetails = userDetailsService().loadUserByUsername(username);
-                    if (jwtService.isTokenValid(token, userDetails)) {
-                        var auth = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
-                            userDetails, null, userDetails.getAuthorities());
-                        auth.setDetails(new org.springframework.security.web.authentication.WebAuthenticationDetailsSource()
-                            .buildDetails(request));
-                        SecurityContextHolder.getContext().setAuthentication(auth);
+                try {
+                    String username = jwtService.extractUsername(token);
+                    if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                        UserDetails userDetails = userDetailsService().loadUserByUsername(username);
+                        if (jwtService.isTokenValid(token, userDetails)) {
+                            var auth = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
+                                userDetails, null, userDetails.getAuthorities());
+                            auth.setDetails(new org.springframework.security.web.authentication.WebAuthenticationDetailsSource()
+                                .buildDetails(request));
+                            SecurityContextHolder.getContext().setAuthentication(auth);
+                        }
                     }
+                } catch (JwtException e) {
+                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"error\":\"Token expired or invalid\"}");
+                    return;
                 }
                 chain.doFilter(request, response);
             }

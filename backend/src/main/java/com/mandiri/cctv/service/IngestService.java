@@ -46,26 +46,22 @@ public class IngestService {
     public IncidentDto handleAlert(AlertRequest req) {
         List<Incident> ongoing = incidentRepository.findOngoingByTypeAndBranch(req.type(), req.branchName());
 
-        // If there is an ongoing incident of the same type at the same branch
-        // and the incoming alert is from a different camera, add it as other-camera
         if (!ongoing.isEmpty()) {
             Incident existing = ongoing.get(0);
-            boolean sameCamera = req.ipAddress().equals(existing.getIpAddress())
-                && req.cameraName().equals(existing.getCameraName());
 
-            if (!sameCamera) {
-                IncidentCamera cam = IncidentCamera.builder()
-                    .incident(existing)
-                    .ipAddress(req.ipAddress())
-                    .cameraName(req.cameraName())
-                    .url(req.evidenceUrl())
-                    .build();
-                incidentCameraRepository.save(cam);
-                return IncidentDto.from(existing, frontendBaseUrl);
-            }
+            // Always append a new entry — deduplication (latest per camera) is handled on read
+            IncidentCamera cam = IncidentCamera.builder()
+                .incident(existing)
+                .ipAddress(req.ipAddress())
+                .cameraName(req.cameraName())
+                .url(req.evidenceUrl())
+                .build();
+            incidentCameraRepository.save(cam);
+
+            return IncidentDto.from(existing, frontendBaseUrl);
         }
 
-        // No ongoing incident (or same camera) — create a new incident
+        // No ongoing incident — create a new one
         Incident incident = Incident.builder()
             .ipAddress(req.ipAddress())
             .branchName(req.branchName())

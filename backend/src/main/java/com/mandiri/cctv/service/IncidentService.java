@@ -21,6 +21,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 
@@ -66,19 +67,26 @@ public class IncidentService {
 
     @Transactional(readOnly = true)
     public List<OtherCameraDto> getOtherCameras(Long incidentId) {
-        Incident incident = incidentRepository.findById(incidentId)
+        incidentRepository.findById(incidentId)
             .orElseThrow(() -> new EntityNotFoundException("Incident not found: " + incidentId));
 
-        Instant detectedAt = incident.getDetectedAt();
         Instant now = Instant.now();
-        String timestamp = DISPLAY_FMT.format(detectedAt) + " WIB";
-        String elapsed = formatElapsed(Duration.between(detectedAt, now));
-
         List<IncidentCamera> stored = incidentCameraRepository.findByIncidentId(incidentId);
+
+        // Deduplicate: keep only the latest entry per (ipAddress, cameraName)
         return stored.stream()
+            .collect(java.util.stream.Collectors.toMap(
+                ic -> ic.getIpAddress() + "|" + ic.getCameraName(),
+                ic -> ic,
+                (a, b) -> a.getCreatedAt().isAfter(b.getCreatedAt()) ? a : b
+            ))
+            .values().stream()
+            .sorted(Comparator.comparing(IncidentCamera::getCreatedAt).reversed())
             .map(ic -> {
+                String ts = DISPLAY_FMT.format(ic.getCreatedAt()) + " WIB";
+                String el = formatElapsed(Duration.between(ic.getCreatedAt(), now));
                 String videoSrc = VIDEO_POOL.get((int) (ic.getId() % VIDEO_POOL.size()));
-                return new OtherCameraDto(ic.getId(), ic.getCameraName(), ic.getIpAddress(), timestamp, elapsed, videoSrc);
+                return new OtherCameraDto(ic.getId(), ic.getCameraName(), ic.getIpAddress(), ts, el, videoSrc);
             })
             .toList();
     }

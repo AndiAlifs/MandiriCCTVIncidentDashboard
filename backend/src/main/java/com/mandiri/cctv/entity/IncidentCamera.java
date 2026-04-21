@@ -2,6 +2,9 @@ package com.mandiri.cctv.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.Instant;
 
 @Entity
 @Table(name = "incident_cameras")
@@ -23,4 +26,8 @@ public class IncidentCamera {
 
     @Column(length = 500)
     private String url;
+
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private Instant createdAt;
 }

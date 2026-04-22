@@ -1,10 +1,6 @@
--- Drop old device FK constraints and columns from incidents
+-- Drop old device FK constraints from incidents
 DECLARE
-  v_count NUMBER;
 BEGIN
-  SELECT COUNT(*) INTO v_count FROM user_constraints
-  WHERE constraint_name = 'SYS_C' AND table_name = 'INCIDENTS' AND constraint_type = 'R';
-  -- Drop by finding FK on device_id
   FOR c IN (SELECT constraint_name FROM user_constraints
             WHERE table_name = 'INCIDENTS' AND constraint_type = 'R'
               AND constraint_name IN (
@@ -15,17 +11,56 @@ BEGIN
 END;
 /
 
-ALTER TABLE incidents DROP COLUMN device_id;
+-- Drop device_id column from incidents (if present)
+BEGIN
+  EXECUTE IMMEDIATE 'ALTER TABLE incidents DROP COLUMN device_id';
+EXCEPTION
+  WHEN OTHERS THEN
+    IF SQLCODE != -904 AND SQLCODE != -12983 THEN RAISE; END IF;  -- column does not exist
+END;
+/
 
-ALTER TABLE incidents ADD ip_address   VARCHAR2(50);
-ALTER TABLE incidents ADD branch_name  VARCHAR2(255);
-ALTER TABLE incidents ADD camera_name  VARCHAR2(255);
-ALTER TABLE incidents ADD region       VARCHAR2(100);
-ALTER TABLE incidents ADD area_group   VARCHAR2(100);
+-- Add new columns to incidents (skip if already present)
+DECLARE
+  PROCEDURE add_col(p_name VARCHAR2, p_type VARCHAR2) IS
+  BEGIN
+    EXECUTE IMMEDIATE 'ALTER TABLE incidents ADD ' || p_name || ' ' || p_type;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -1430 THEN RAISE; END IF;  -- column already exists
+  END;
+BEGIN
+  add_col('ip_address',  'VARCHAR2(50)');
+  add_col('branch_name', 'VARCHAR2(255)');
+  add_col('camera_name', 'VARCHAR2(255)');
+  add_col('region',      'VARCHAR2(100)');
+  add_col('area_group',  'VARCHAR2(100)');
+END;
+/
 
-DROP INDEX idx_incidents_device;
-CREATE INDEX idx_incidents_branch_name ON incidents(branch_name);
-CREATE INDEX idx_incidents_type_branch ON incidents(type, branch_name);
+-- Drop old device index (if present)
+BEGIN
+  EXECUTE IMMEDIATE 'DROP INDEX idx_incidents_device';
+EXCEPTION
+  WHEN OTHERS THEN
+    IF SQLCODE != -1418 THEN RAISE; END IF;  -- index does not exist
+END;
+/
+
+-- Create new indexes (skip if already present)
+DECLARE
+  PROCEDURE create_idx(p_name VARCHAR2, p_def VARCHAR2) IS
+  BEGIN
+    EXECUTE IMMEDIATE 'CREATE INDEX ' || p_name || ' ON ' || p_def;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -955 THEN RAISE; END IF;  -- name already used
+  END;
+BEGIN
+  create_idx('idx_incidents_branch_name', 'incidents(branch_name)');
+  create_idx('idx_incidents_type_branch', 'incidents(type, branch_name)');
+END;
+/
 
 -- Drop old device FK from incident_cameras
 DECLARE
@@ -40,7 +75,26 @@ BEGIN
 END;
 /
 
-ALTER TABLE incident_cameras DROP COLUMN device_id;
+-- Drop device_id column from incident_cameras (if present)
+BEGIN
+  EXECUTE IMMEDIATE 'ALTER TABLE incident_cameras DROP COLUMN device_id';
+EXCEPTION
+  WHEN OTHERS THEN
+    IF SQLCODE != -904 AND SQLCODE != -12983 THEN RAISE; END IF;
+END;
+/
 
-ALTER TABLE incident_cameras ADD ip_address  VARCHAR2(50);
-ALTER TABLE incident_cameras ADD camera_name VARCHAR2(255);
+-- Add new columns to incident_cameras (skip if already present)
+DECLARE
+  PROCEDURE add_col(p_name VARCHAR2, p_type VARCHAR2) IS
+  BEGIN
+    EXECUTE IMMEDIATE 'ALTER TABLE incident_cameras ADD ' || p_name || ' ' || p_type;
+  EXCEPTION
+    WHEN OTHERS THEN
+      IF SQLCODE != -1430 THEN RAISE; END IF;
+  END;
+BEGIN
+  add_col('ip_address',  'VARCHAR2(50)');
+  add_col('camera_name', 'VARCHAR2(255)');
+END;
+/

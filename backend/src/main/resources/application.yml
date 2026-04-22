@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: stag   # override with -Dspring.profiles.active=staging|prod
+    active: jboss   # default for WAR deployments; docker-compose overrides to 'dev', override with -Dspring.profiles.active=staging|prod elsewhere
   jpa:
     hibernate:
       ddl-auto: validate

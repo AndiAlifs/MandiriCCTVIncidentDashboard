@@ -6,6 +6,14 @@
 -->
 <jboss-deployment-structure>
   <deployment>
+    <!-- Disable JBoss's JPA, Weld (CDI), and Bean Validation subsystems;
+         Spring Boot handles all of this itself.
+         NOTE: per the XSD, <exclude-subsystems> MUST come before <exclusions>. -->
+    <exclude-subsystems>
+      <subsystem name="jpa" />
+      <subsystem name="weld" />
+      <subsystem name="bean-validation" />
+    </exclude-subsystems>
     <!-- Exclude modules that conflict with Spring Boot bundled versions -->
     <exclusions>
       <module name="org.springframework" />
@@ -19,6 +27,12 @@
       <module name="org.hibernate.orm" />
       <module name="org.hibernate.orm.core" />
       <module name="org.hibernate.validator" />
+      <module name="org.hibernate.validator.cdi" />
+      <!-- Exclude CDI / Weld — Spring Boot doesn't use Jakarta CDI -->
+      <module name="jakarta.enterprise.api" />
+      <module name="org.jboss.weld.core" />
+      <module name="org.jboss.weld.api" />
+      <module name="org.jboss.weld.spi" />
       <!-- Exclude Jackson -->
       <module name="com.fasterxml.jackson.core.jackson-core" />
       <module name="com.fasterxml.jackson.core.jackson-databind" />
@@ -34,9 +48,5 @@
       <module name="jakarta.validation.api" />
       <module name="jakarta.transaction.api" />
     </exclusions>
-    <!-- Disable JBoss's JPA subsystem entirely; Spring Boot handles JPA -->
-    <exclude-subsystems>
-      <subsystem name="jpa" />
-    </exclude-subsystems>
   </deployment>
 </jboss-deployment-structure>
